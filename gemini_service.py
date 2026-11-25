@@ -14,7 +14,7 @@ load_dotenv(ENV_PATH)
 SYSTEM_PROMPT = """You are a specialized structured data extractor for a school fees administration system.
 The school administrator writes informal, conversational chat messages reporting student fee payments.
 
-Your task is to analyze the user message and return ONLY a valid JSON object with EXACTLY these four fields:
+Your task is to analyze the user message and return ONLY a valid JSON object with EXACTLY these five fields:
 1. "intent":
    - "record_payment" if the message reports, confirms, or asks to record a fee payment (or fees paid/received/done).
    - "unknown" if the message is greeting, question, chit-chat, or unrelated.
@@ -25,7 +25,10 @@ Your task is to analyze the user message and return ONLY a valid JSON object wit
    - A numeric value only (integer or float, e.g. 2000, 2500, 1800.50).
    - Clean out all currency symbols (₹, Rs, Rs., INR) and thousands commas ("2,000" -> 2000).
    - If the message has NO amount mentioned, set to null. DO NOT GUESS OR INVENT AN AMOUNT.
-4. "confidence":
+4. "payment_mode":
+   - One of: "Cash", "UPI", "Bank Transfer", "Card", "Cheque".
+   - Infer from keywords like GPay/PhonePe/Paytm/UPI -> "UPI", NEFT/IMPS/RTGS/bank -> "Bank Transfer", card -> "Card", cheque/check -> "Cheque", otherwise default to "Cash".
+5. "confidence":
    - "high": Both student name and amount are clearly identified.
    - "medium": Partial information (e.g. name found but amount missing) or slightly ambiguous.
    - "low": Unclear intent or unknown message.
@@ -158,6 +161,20 @@ def extract_with_gemini_api(message, api_key):
     return text_content
 
 
+def extract_payment_mode(raw_mode_or_msg):
+    """Normalizes payment mode from message or extracted field."""
+    text = str(raw_mode_or_msg or "").lower()
+    if any(kw in text for kw in ("upi", "gpay", "google pay", "phonepe", "paytm", "bhim", "qr")):
+        return "UPI"
+    if any(kw in text for kw in ("bank", "neft", "imps", "rtgs", "transfer", "online", "netbanking")):
+        return "Bank Transfer"
+    if any(kw in text for kw in ("card", "debit", "credit")):
+        return "Card"
+    if any(kw in text for kw in ("cheque", "check")):
+        return "Cheque"
+    return "Cash"
+
+
 def heuristic_fallback_extractor(message):
     """
     Fallback parser providing the exact structured format when GEMINI_API_KEY is not set or network fails.
@@ -191,6 +208,7 @@ def heuristic_fallback_extractor(message):
         raw_name = fees_done_match.group(1)
 
     name = clean_student_name(raw_name)
+    payment_mode = extract_payment_mode(clean_text)
 
     payment_keywords = ["paid", "fees", "fee", "received", "done", "payment", "has paid"]
     has_payment_keyword = any(kw in clean_text for kw in payment_keywords)
@@ -211,6 +229,7 @@ def heuristic_fallback_extractor(message):
         "intent": intent,
         "student_name": name,
         "amount": amount,
+        "payment_mode": payment_mode,
         "confidence": confidence,
         "source": "heuristic_fallback"
     }
@@ -224,6 +243,7 @@ def parse_admin_message(message):
       "intent": "record_payment" | "unknown",
       "student_name": str | None,
       "amount": int | float | None,
+      "payment_mode": "Cash" | "UPI" | "Bank Transfer" | "Card" | "Cheque",
       "confidence": "high" | "medium" | "low",
       "source": "gemini_api" | "heuristic_fallback"
     }
@@ -233,6 +253,7 @@ def parse_admin_message(message):
             "intent": "unknown",
             "student_name": None,
             "amount": None,
+            "payment_mode": "Cash",
             "confidence": "low",
             "source": "error"
         }
@@ -253,6 +274,8 @@ def parse_admin_message(message):
 
             student_name = clean_student_name(parsed.get("student_name"))
             amount = parse_amount(parsed.get("amount"))
+            raw_mode = parsed.get("payment_mode") or message
+            payment_mode = extract_payment_mode(raw_mode)
             confidence = str(parsed.get("confidence", "medium")).lower()
             if confidence not in ("high", "medium", "low"):
                 confidence = "medium"
@@ -261,6 +284,7 @@ def parse_admin_message(message):
                 "intent": intent,
                 "student_name": student_name,
                 "amount": amount,
+                "payment_mode": payment_mode,
                 "confidence": confidence,
                 "source": "gemini_api"
             }

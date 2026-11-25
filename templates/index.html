@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Fees Entry Assistant - Intelligent Ledger & NLU Assistant</title>
-  
+  <title>Fees Entry Assistant - Intelligent Ledger &amp; NLU Command Center</title>
+
   <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -51,435 +51,1267 @@
   <!-- ============================================================== -->
   <!-- REACT BITS INTERACTIVE BACKGROUND CANVASES                      -->
   <!-- ============================================================== -->
-  <!-- 1. Antigravity Interactive Particles Canvas -->
   <canvas id="antigravity-canvas"></canvas>
-  <!-- 2. Click Spark Visual Effects Canvas -->
   <canvas id="spark-canvas"></canvas>
 
-  <!-- ============================================================== -->
-  <!-- TOP APP BAR                                                     -->
-  <!-- ============================================================== -->
-  <header class="bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 sticky top-0 z-30 flex-none shadow-xs transition-colors duration-300">
-    <div class="max-w-6xl mx-auto px-3 sm:px-5 py-2.5 flex items-center justify-between">
-      
-      <!-- Brand & Status -->
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-orange-500 to-red-500 text-white flex items-center justify-center shadow-md shadow-blue-500/25 relative overflow-hidden group">
-          <div class="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          <i data-lucide="shield-check" class="w-5 h-5 text-white drop-shadow-sm"></i>
-        </div>
-        <div>
-          <div class="flex items-center space-x-2">
-            <h1 class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
-              Fees<span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-orange-500 to-red-500">Assistant</span>
-            </h1>
-            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60 shadow-2xs">
-              <span class="w-1.5 h-1.5 rounded-full bg-blue-500 mr-1.5 animate-pulse"></span>
-              AI Ledger Active
-            </span>
-          </div>
-          <p class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center space-x-1.5 font-medium">
-            <span>Conversational Entry • Auto-Months • Safety Pipeline</span>
-          </p>
-        </div>
-      </div>
-
-      <!-- Action Navigation Buttons -->
-      <div class="flex items-center space-x-1 sm:space-x-2">
-
-        <!-- Theme Toggle (Light / Dark) -->
-        <button 
-          id="btn-theme-toggle" 
-          class="p-2 text-slate-600 dark:text-slate-300 hover:text-orange-500 dark:hover:text-orange-400 bg-slate-100 dark:bg-slate-800/80 hover:bg-orange-50 dark:hover:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700/60 transition active:scale-95 cursor-pointer"
-          title="Toggle Light / Dark Mode"
-          aria-label="Toggle Theme"
-        >
-          <i data-lucide="sun" id="theme-icon-sun" class="w-4 h-4 hidden dark:inline text-amber-400"></i>
-          <i data-lucide="moon" id="theme-icon-moon" class="w-4 h-4 inline dark:hidden text-blue-600"></i>
-        </button>
-
-        <!-- Add Student Button -->
-        <button 
-          id="btn-open-add-student" 
-          class="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold rounded-lg btn-primary-gradient cursor-pointer active:scale-95" 
-          title="Enroll new student"
-          aria-label="Add new student"
-        >
-          <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
-          <span class="hidden sm:inline">+ Add Student</span>
-          <span class="sm:hidden">+ Student</span>
-        </button>
-
-        <!-- Download Report Button -->
-        <a 
-          href="/api/export-csv" 
-          id="btn-download-report" 
-          class="inline-flex items-center space-x-1 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition active:scale-95" 
-          title="Download complete fee sheet report as CSV"
-          aria-label="Download CSV report"
-          download
-        >
-          <i data-lucide="download" class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400"></i>
-          <span class="hidden md:inline">Export CSV</span>
-        </a>
-
-        <!-- Activity Log Button -->
-        <button 
-          id="btn-open-activity-log" 
-          class="inline-flex items-center space-x-1 px-2 sm:px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition active:scale-95" 
-          aria-label="Activity Log"
-          title="Session Activity Log"
-        >
-          <i data-lucide="history" class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400"></i>
-          <span class="hidden sm:inline">Log</span>
-          <span id="header-log-count" class="bg-red-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold ml-0.5">0</span>
-        </button>
-
-        <!-- Reset Table -->
-        <button 
-          id="btn-reset-table" 
-          class="p-1.5 sm:px-2.5 sm:py-1.5 text-xs font-medium rounded-lg text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition active:scale-95" 
-          title="Reset database to initial seed data" 
-          aria-label="Reset Table"
-        >
-          <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
-          <span class="hidden lg:inline ml-1">Reset</span>
-        </button>
-
-      </div>
-    </div>
-  </header>
+  <!-- TOAST NOTIFICATION STACK -->
+  <div id="toast-container" class="fixed top-4 right-4 z-[90] flex flex-col gap-2 max-w-xs w-full pointer-events-none px-2 sm:px-0"></div>
 
   <!-- ============================================================== -->
-  <!-- LIVE KPI STATS DASHBOARD BAR                                    -->
+  <!-- AUTHENTICATION PORTAL (SHOWN WHEN UNAUTHENTICATED)              -->
   <!-- ============================================================== -->
-  <section class="bg-white/60 dark:bg-[#0b1324]/60 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 z-20 flex-none py-1.5 px-4">
-    <div class="max-w-6xl mx-auto flex items-center justify-between overflow-x-auto no-scrollbar gap-3 text-xs">
-      
-      <!-- Metric 1: Students Count -->
-      <div class="flex items-center space-x-2 px-2.5 py-1 rounded-lg bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200/60 dark:border-blue-900/40 whitespace-nowrap">
-        <i data-lucide="users" class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400"></i>
-        <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Students:</span>
-        <span id="kpi-students-count" class="font-bold font-mono text-blue-700 dark:text-blue-300">0</span>
-      </div>
+  <div id="auth-screen" class="fixed inset-0 z-40 flex flex-col overflow-y-auto px-3 sm:px-6 py-6 bg-slate-50/75 dark:bg-[#070b14]/80 backdrop-blur-md">
+    <div class="w-full max-w-md mx-auto my-auto space-y-5 relative z-10">
 
-      <!-- Metric 2: Total Base Revenue -->
-      <div class="flex items-center space-x-2 px-2.5 py-1 rounded-lg bg-orange-50/70 dark:bg-orange-950/40 border border-orange-200/60 dark:border-orange-900/40 whitespace-nowrap">
-        <i data-lucide="wallet" class="w-3.5 h-3.5 text-orange-600 dark:text-orange-400"></i>
-        <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Base Monthly:</span>
-        <span id="kpi-base-fees" class="font-bold font-mono text-orange-700 dark:text-orange-300">₹0</span>
-      </div>
-
-      <!-- Metric 3: Active Columns -->
-      <div class="flex items-center space-x-2 px-2.5 py-1 rounded-lg bg-red-50/70 dark:bg-red-950/40 border border-red-200/60 dark:border-red-900/40 whitespace-nowrap">
-        <i data-lucide="calendar" class="w-3.5 h-3.5 text-red-600 dark:text-red-400"></i>
-        <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Month Columns:</span>
-        <span id="kpi-months-count" class="font-bold font-mono text-red-700 dark:text-red-300">0</span>
-      </div>
-
-      <!-- Metric 4: Engine Status -->
-      <div class="flex items-center space-x-2 px-2.5 py-1 rounded-lg bg-slate-100/80 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 whitespace-nowrap ml-auto">
-        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-orange-500"></i>
-        <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">NLU Mode:</span>
-        <span id="kpi-engine-mode" class="font-bold font-mono text-slate-800 dark:text-slate-200">Checking...</span>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ============================================================== -->
-  <!-- MAIN CONTAINER (SPLIT: LIVE LEDGER TOP, CHAT INTERFACE BOTTOM)  -->
-  <!-- ============================================================== -->
-  <main class="flex-1 max-w-6xl w-full mx-auto flex flex-col overflow-hidden bg-white/70 dark:bg-[#0a0f1d]/70 backdrop-blur-md sm:shadow-2xl sm:border-x sm:border-slate-200/80 dark:sm:border-slate-800/80 relative z-10">
-    
-    <!-- ============================================================== -->
-    <!-- SECTION 1: LIVE ON-SCREEN GOOGLE SHEET TABLE                     -->
-    <!-- ============================================================== -->
-    <section class="bg-white/90 dark:bg-[#0f172a]/90 border-b border-slate-200 dark:border-slate-800 flex-none transition-colors duration-300">
-      
-      <!-- Table Controls Bar -->
-      <div class="px-3 sm:px-4 py-2 bg-slate-50/80 dark:bg-slate-900/80 border-b border-slate-200/80 dark:border-slate-800/80 flex flex-wrap items-center justify-between gap-2">
-        <div class="flex items-center space-x-2">
-          <div class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></div>
-          <span class="text-xs font-bold text-slate-800 dark:text-slate-200 tracking-tight">Kiya Tuition Classes ("Fees" Tab)</span>
-          <span id="table-student-count" class="text-[10px] bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 px-2 py-0.5 rounded-full font-mono font-bold">Loading...</span>
-        </div>
-        
-        <div class="flex items-center space-x-2 text-xs">
-          <!-- Real-Time Student Search Input -->
-          <div class="relative w-48 sm:w-60">
-            <input 
-              type="text" 
-              id="table-search-input" 
-              placeholder="Filter student, class, school..." 
-              class="w-full text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg pl-7 pr-7 py-1 text-slate-700 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-300 dark:focus:ring-blue-800 shadow-2xs"
-            >
-            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2 top-1.5 pointer-events-none"></i>
-            <button id="btn-clear-search" class="hidden absolute right-2 top-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" title="Clear filter">
-              <i data-lucide="x" class="w-3.5 h-3.5"></i>
-            </button>
-          </div>
-
-          <a href="/api/export-csv" class="text-blue-600 dark:text-blue-400 hover:text-orange-500 font-semibold text-[11px] flex items-center px-1.5 py-0.5 rounded transition" download title="Download full CSV report">
-            <i data-lucide="file-spreadsheet" class="w-3 h-3 mr-1"></i> Export
-          </a>
-        </div>
-      </div>
-
-      <!-- Scrollable Table Container -->
-      <div class="overflow-x-auto max-h-48 sm:max-h-56 overflow-y-auto no-scrollbar relative">
-        <table class="w-full text-left text-xs border-collapse min-w-[740px]" id="live-mock-table">
-          <thead>
-            <tr class="bg-slate-100 dark:bg-slate-900/90 text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800 font-semibold" id="live-table-header"></tr>
-          </thead>
-          <tbody id="live-table-body" class="divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-700 dark:text-slate-300 font-mono"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- ============================================================== -->
-    <!-- SECTION 2: CHAT INTERFACE WITH SAFETY FLOWS                     -->
-    <!-- ============================================================== -->
-    <div class="flex-1 flex flex-col overflow-hidden relative">
-
-      <!-- Safety Banner -->
-      <div class="bg-gradient-to-r from-blue-50/80 via-orange-50/60 to-red-50/80 dark:from-blue-950/30 dark:via-orange-950/20 dark:to-red-950/30 border-b border-slate-200/80 dark:border-slate-800/80 px-4 py-1.5 flex items-center justify-between text-xs text-slate-700 dark:text-slate-300 flex-none">
-        <div class="flex items-center space-x-2 truncate">
-          <i data-lucide="shield-check" class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 flex-shrink-0"></i>
-          <span class="truncate font-medium text-[11px]">Safety Pipeline: 2-step confirmation • 1-click Undo • Duplicate check • Gap alerts</span>
-        </div>
-        <button id="btn-clear-chat" class="text-orange-600 dark:text-orange-400 hover:text-red-600 dark:hover:text-red-400 text-[11px] font-semibold underline ml-2 flex-shrink-0 cursor-pointer">
-          Clear Chat
-        </button>
-      </div>
-
-      <!-- MESSAGES STREAM -->
-      <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-3.5 scroll-smooth">
-        
-        <!-- Welcome Message -->
-        <div class="flex items-start space-x-3 message-bot">
-          <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-orange-500 text-white flex items-center justify-center flex-shrink-0 text-xs font-bold shadow-md shadow-blue-500/20">
-            <i data-lucide="bot" class="w-4 h-4"></i>
-          </div>
-          <div class="message-bot-bubble text-xs sm:text-sm">
-            <div class="flex items-center justify-between mb-1.5">
-              <span class="font-bold text-xs text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-orange-500">Fees Assistant AI</span>
-              <span class="text-[10px] text-slate-400">Ready</span>
-            </div>
-            <p class="leading-relaxed">
-              👋 Welcome! I convert informal payment notes in English or Hinglish directly into your school fee ledger with automated month advancement and 1-click safety controls.
-            </p>
-            <div class="my-2.5 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 text-xs space-y-1.5 text-slate-700 dark:text-slate-300">
-              <div class="flex items-start space-x-2">
-                <i data-lucide="message-square-plus" class="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5"></i>
-                <span>Type notes like: <code>Alex paid 900</code> or <code>Student Dummy paid 2000 for Dec 2026</code>.</span>
-              </div>
-              <div class="flex items-start space-x-2">
-                <i data-lucide="rotate-ccw" class="w-4 h-4 text-orange-500 flex-shrink-0 mt-0.5"></i>
-                <span>Accidentally confirmed an entry? Tap <strong>"Undo Entry"</strong> to restore the previous cell instantly.</span>
-              </div>
-              <div class="flex items-start space-x-2">
-                <i data-lucide="trash-2" class="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5"></i>
-                <span>Delete month columns via trash icon on headers or type <code>delete column Jan 2027</code>.</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- TYPING INDICATOR -->
-      <div id="typing-indicator" class="hidden px-6 py-2 text-xs text-slate-500 dark:text-slate-400 flex items-center space-x-2 bg-transparent">
-        <div class="w-2 h-2 rounded-full bg-blue-500 animate-bounce"></div>
-        <div class="w-2 h-2 rounded-full bg-orange-500 animate-bounce [animation-delay:0.2s]"></div>
-        <div class="w-2 h-2 rounded-full bg-red-500 animate-bounce [animation-delay:0.4s]"></div>
-        <span class="text-[11px] font-medium text-slate-500 dark:text-slate-400 ml-1">Analyzing note...</span>
-      </div>
-
-      <!-- QUICK SUGGESTION CHIPS -->
-      <div class="px-4 py-2 bg-slate-50/80 dark:bg-[#0a0f1d]/80 border-t border-slate-200/80 dark:border-slate-800/80 flex-none overflow-x-auto no-scrollbar">
-        <div class="flex items-center space-x-2 text-xs text-slate-600 dark:text-slate-400 whitespace-nowrap">
-          <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 flex items-center mr-1">
-            <i data-lucide="zap" class="w-3.5 h-3.5 mr-1 text-orange-500"></i> Quick Test:
-          </span>
-          <button onclick="useQuickPrompt('Alex paid 900')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 transition text-[11px] active:scale-95 shadow-2xs font-semibold cursor-pointer">
-            Alex paid 900
-          </button>
-          <button onclick="useQuickPrompt('Jamie paid 1100')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 hover:bg-orange-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 transition text-[11px] active:scale-95 shadow-2xs font-semibold cursor-pointer">
-            Jamie paid 1100
-          </button>
-          <button onclick="useQuickPrompt('Alex Std 5 paid 1300')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 transition text-[11px] active:scale-95 shadow-2xs font-semibold cursor-pointer" title="Test disambiguation">
-            Alex Std 5 paid 1300
-          </button>
-          <button onclick="useQuickPrompt('Jamie paid 1100 for Dec 2026')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 hover:bg-orange-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 transition text-[11px] active:scale-95 shadow-2xs cursor-pointer" title="Explicit target month">
-            Jamie paid 1100 for Dec 2026
-          </button>
-          <button onclick="useQuickPrompt('delete column Jan 2027')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 transition text-[11px] active:scale-95 shadow-2xs cursor-pointer text-red-600 dark:text-red-400" title="Delete column command">
-            "delete column Jan 2027"
-          </button>
-        </div>
-      </div>
-
-      <!-- BOTTOM INPUT BAR -->
-      <footer class="bg-white/90 dark:bg-[#0f172a]/90 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800/80 p-3 sm:p-3.5 flex-none shadow-lg">
-        <form id="chat-form" class="flex items-center space-x-2 max-w-5xl mx-auto">
-          <div class="relative flex-1">
-            <input 
-              type="text" 
-              id="chat-input" 
-              placeholder="Type fee note (e.g. Alex paid 900, or Jamie paid 1100 for Dec 2026)..." 
-              class="w-full bg-slate-100 dark:bg-slate-800/90 hover:bg-slate-50 dark:hover:bg-slate-800 focus:bg-white dark:focus:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/50 rounded-xl px-4 py-2.5 text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none transition shadow-inner font-sans"
-              autocomplete="off"
-              required
-            >
-          </div>
-          <button 
-            type="submit" 
-            id="btn-send"
-            class="btn-primary-gradient px-4 py-2.5 rounded-xl font-bold flex items-center justify-center space-x-1.5 shadow-md shadow-blue-500/25 transition active:scale-95 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-          >
-            <span class="hidden sm:inline text-xs">Process</span>
-            <i data-lucide="send" class="w-4 h-4"></i>
-          </button>
-        </form>
-        <div class="mt-1 flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-500 px-1">
-          <span>Keyboard Enter to submit • Escape closes open dialogs.</span>
-          <span>Click month column trash icon or export CSV anytime.</span>
-        </div>
-      </footer>
-
-    </div>
-
-  </main>
-
-  <!-- ============================================================== -->
-  <!-- MODAL: ACTIVITY LOG (SESSION HISTORY)                           -->
-  <!-- ============================================================== -->
-  <div id="modal-activity-log" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
-    <div class="bg-white dark:bg-[#0f172a] rounded-2xl shadow-2xl max-w-lg w-full max-h-[92vh] flex flex-col overflow-hidden border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in-95 duration-150">
-      
-      <div class="px-5 py-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-blue-50/70 dark:bg-blue-950/40">
-        <div class="flex items-center space-x-2.5">
-          <div class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
-            <i data-lucide="history" class="w-4 h-4"></i>
+      <!-- Auth Header + Theme Toggle -->
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 via-orange-500 to-red-500 text-white flex items-center justify-center shadow-lg shadow-blue-500/30">
+            <i data-lucide="shield-check" class="w-6 h-6"></i>
           </div>
           <div>
-            <h2 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">Session Activity Log</h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Audit trail of entries, undos, and column modifications</p>
+            <h1 class="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              Fees<span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-orange-500 to-red-500">Assistant</span>
+            </h1>
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Secured Tuition Ledger &amp; AI NLU</p>
           </div>
         </div>
-        <button id="btn-close-activity-log" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800 transition cursor-pointer" aria-label="Close activity log">
-          <i data-lucide="x" class="w-5 h-5"></i>
+        <button
+          type="button"
+          class="theme-toggle-trigger p-2.5 text-slate-600 dark:text-slate-300 bg-white/90 dark:bg-slate-800/90 hover:text-orange-500 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm transition active:scale-95 cursor-pointer"
+          aria-label="Toggle Light/Dark Theme"
+          title="Toggle Light / Dark Mode"
+        >
+          <i data-lucide="sun" class="theme-icon-sun w-4 h-4 hidden dark:inline text-amber-400"></i>
+          <i data-lucide="moon" class="theme-icon-moon w-4 h-4 inline dark:hidden text-blue-600"></i>
         </button>
       </div>
 
-      <div class="overflow-y-auto flex-1 p-4 bg-slate-50/50 dark:bg-slate-900/40 space-y-2.5" id="activity-log-container">
-        <div class="p-6 text-center text-xs text-slate-400 dark:text-slate-500">No activity yet in this session.</div>
+      <!-- Initial Setup Banner (shown when 0 users exist) -->
+      <div id="auth-setup-banner" class="hidden p-3.5 rounded-2xl bg-gradient-to-r from-blue-500/15 via-orange-500/15 to-red-500/15 border border-blue-400/40 dark:border-blue-500/40 text-xs text-slate-700 dark:text-slate-200 flex items-start space-x-2.5 shadow-sm">
+        <i data-lucide="sparkles" class="w-4 h-4 text-orange-500 flex-shrink-0 mt-0.5"></i>
+        <div>
+          <p class="font-bold text-slate-900 dark:text-white">First-Time System Setup</p>
+          <p class="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5">No administrator account exists yet. Create your primary <strong>Admin</strong> account below to unlock the ledger.</p>
+        </div>
       </div>
 
-      <div class="px-5 py-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/80 flex items-center justify-between">
-        <a href="/api/export-csv" class="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center" download>
-          <i data-lucide="download" class="w-3.5 h-3.5 mr-1"></i> Download CSV
-        </a>
-        <button id="btn-close-activity-log-footer" class="px-4 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer">
-          Close
-        </button>
+      <!-- Auth Card -->
+      <div class="glass-panel electric-glow rounded-2xl shadow-2xl overflow-hidden">
+
+        <!-- Auth Navigation Tabs -->
+        <div id="auth-tabs-bar" class="grid grid-cols-3 border-b border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/70 p-1.5 gap-1">
+          <button type="button" id="tab-auth-login" class="py-2 rounded-xl text-xs font-bold transition cursor-pointer nav-tab-active">
+            Sign In
+          </button>
+          <button type="button" id="tab-auth-register" class="py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
+            Create Account
+          </button>
+          <button type="button" id="tab-auth-recover" class="py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
+            Reset PW
+          </button>
+        </div>
+
+        <div class="p-5 sm:p-6">
+
+          <!-- LOGIN FORM -->
+          <form id="form-login" class="space-y-4">
+            <div>
+              <label for="login-identifier" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Username or Email</label>
+              <div class="relative">
+                <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none"></i>
+                <input
+                  type="text"
+                  id="login-identifier"
+                  placeholder="admin or admin@school.com"
+                  autocomplete="username"
+                  class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl pl-9 pr-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  required
+                >
+              </div>
+            </div>
+
+            <div>
+              <label for="login-password" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Password</label>
+              <div class="relative">
+                <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none"></i>
+                <input
+                  type="password"
+                  id="login-password"
+                  placeholder="Enter your password"
+                  autocomplete="current-password"
+                  class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl pl-9 pr-10 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  required
+                >
+                <button type="button" data-toggle-pw="login-password" class="pw-eye-btn absolute right-2.5 top-2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer" aria-label="Show or hide password">
+                  <i data-lucide="eye" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between text-xs">
+              <label class="inline-flex items-center space-x-2 cursor-pointer text-slate-600 dark:text-slate-400">
+                <input type="checkbox" id="login-remember" class="rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500" checked>
+                <span>Keep signed in (7 days)</span>
+              </label>
+              <button type="button" id="link-goto-recover" class="text-orange-600 dark:text-orange-400 hover:underline font-semibold cursor-pointer">Forgot password?</button>
+            </div>
+
+            <div id="login-error" class="hidden p-2.5 rounded-xl text-xs font-semibold bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800/60"></div>
+
+            <button type="submit" id="btn-login-submit" class="w-full btn-primary-gradient py-2.5 rounded-xl text-sm font-bold flex items-center justify-center space-x-2 cursor-pointer">
+              <i data-lucide="log-in" class="w-4 h-4"></i>
+              <span>Sign In to Workspace</span>
+            </button>
+          </form>
+
+          <!-- 2FA VERIFICATION FORM -->
+          <form id="form-2fa" class="hidden space-y-4">
+            <div class="text-center space-y-1.5">
+              <div class="w-11 h-11 rounded-2xl bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto">
+                <i data-lucide="smartphone" class="w-5 h-5"></i>
+              </div>
+              <h2 class="text-base font-bold text-slate-900 dark:text-white">Two-Factor Verification</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Enter the 6-digit code from your authenticator app or an 8-character backup recovery code.</p>
+            </div>
+
+            <div>
+              <input
+                type="text"
+                id="twofa-code"
+                placeholder="123456 or ABCD-EF12"
+                autocomplete="one-time-code"
+                class="w-full text-center tracking-widest font-mono text-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2.5 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                required
+              >
+            </div>
+
+            <div id="twofa-error" class="hidden p-2.5 rounded-xl text-xs font-semibold bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800/60"></div>
+
+            <div class="flex space-x-2">
+              <button type="button" id="btn-twofa-back" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer">
+                Back
+              </button>
+              <button type="submit" id="btn-twofa-submit" class="flex-1 btn-primary-gradient py-2.5 rounded-xl text-xs font-bold cursor-pointer">
+                Verify &amp; Unlock
+              </button>
+            </div>
+          </form>
+
+          <!-- REGISTRATION FORM -->
+          <form id="form-register" class="hidden space-y-3.5">
+            <div id="reg-disabled-notice" class="hidden p-3 rounded-xl bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800 text-xs text-orange-800 dark:text-orange-300 font-medium">
+              Self-registration is currently disabled by your administrator. Please ask an Admin to create your account.
+            </div>
+
+            <div>
+              <label for="reg-fullname" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Full Name</label>
+              <input
+                type="text"
+                id="reg-fullname"
+                placeholder="e.g. Kiya Sharma"
+                class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500"
+                required
+              >
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label for="reg-username" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Username</label>
+                <input
+                  type="text"
+                  id="reg-username"
+                  placeholder="kiya_admin"
+                  autocomplete="username"
+                  class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm font-mono text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500"
+                  required
+                >
+              </div>
+              <div>
+                <label for="reg-email" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Email Address</label>
+                <input
+                  type="email"
+                  id="reg-email"
+                  placeholder="admin@tuition.com"
+                  autocomplete="email"
+                  class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500"
+                  required
+                >
+              </div>
+            </div>
+
+            <div>
+              <label for="reg-password" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Strong Password</label>
+              <div class="relative">
+                <input
+                  type="password"
+                  id="reg-password"
+                  placeholder="Min 8 chars, A-Z, a-z, 0-9"
+                  autocomplete="new-password"
+                  class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl pl-3 pr-10 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500"
+                  required
+                >
+                <button type="button" data-toggle-pw="reg-password" class="pw-eye-btn absolute right-2.5 top-2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer" aria-label="Toggle password visibility">
+                  <i data-lucide="eye" class="w-4 h-4"></i>
+                </button>
+              </div>
+              <!-- Password Strength Meter -->
+              <div class="mt-2 space-y-1">
+                <div class="grid grid-cols-4 gap-1 h-1.5">
+                  <div class="pw-bar rounded-full bg-slate-200 dark:bg-slate-800 transition-colors" data-idx="0"></div>
+                  <div class="pw-bar rounded-full bg-slate-200 dark:bg-slate-800 transition-colors" data-idx="1"></div>
+                  <div class="pw-bar rounded-full bg-slate-200 dark:bg-slate-800 transition-colors" data-idx="2"></div>
+                  <div class="pw-bar rounded-full bg-slate-200 dark:bg-slate-800 transition-colors" data-idx="3"></div>
+                </div>
+                <p id="reg-strength-label" class="text-[11px] text-slate-500 dark:text-slate-400">Requires 8+ chars, uppercase, lowercase &amp; digit</p>
+              </div>
+            </div>
+
+            <div id="reg-error" class="hidden p-2.5 rounded-xl text-xs font-semibold bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800/60"></div>
+
+            <button type="submit" id="btn-reg-submit" class="w-full btn-primary-gradient py-2.5 rounded-xl text-sm font-bold flex items-center justify-center space-x-2 cursor-pointer">
+              <i data-lucide="user-plus" class="w-4 h-4"></i>
+              <span id="btn-reg-label">Create Account</span>
+            </button>
+          </form>
+
+          <!-- PASSWORD RECOVERY FORM -->
+          <form id="form-recover" class="hidden space-y-3.5">
+            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              Reset your password instantly using one of your single-use <strong>Backup Recovery Codes</strong> issued when your account was created.
+            </p>
+            <div>
+              <label for="rec-identifier" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Username or Email</label>
+              <input
+                type="text"
+                id="rec-identifier"
+                placeholder="admin"
+                class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-orange-500"
+                required
+              >
+            </div>
+            <div>
+              <label for="rec-code" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Backup Recovery Code</label>
+              <input
+                type="text"
+                id="rec-code"
+                placeholder="A1B2-C3D4"
+                class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm font-mono uppercase text-slate-900 dark:text-slate-100 focus:outline-none focus:border-orange-500"
+                required
+              >
+            </div>
+            <div>
+              <label for="rec-new-password" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">New Password</label>
+              <input
+                type="password"
+                id="rec-new-password"
+                placeholder="Min 8 chars, A-Z, a-z, 0-9"
+                autocomplete="new-password"
+                class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-orange-500"
+                required
+              >
+            </div>
+
+            <div id="rec-error" class="hidden p-2.5 rounded-xl text-xs font-semibold bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800/60"></div>
+            <div id="rec-success" class="hidden p-2.5 rounded-xl text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60"></div>
+
+            <button type="submit" id="btn-rec-submit" class="w-full btn-flame py-2.5 rounded-xl text-sm font-bold cursor-pointer transition">
+              Reset Password with Code
+            </button>
+          </form>
+
+        </div>
+      </div>
+
+      <!-- Auth Security Badges -->
+      <div class="flex flex-wrap items-center justify-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+        <span class="px-2.5 py-1 rounded-full bg-white/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 flex items-center space-x-1">
+          <i data-lucide="key-round" class="w-3 h-3 text-blue-500"></i>
+          <span>CSRF &amp; HttpOnly Sessions</span>
+        </span>
+        <span class="px-2.5 py-1 rounded-full bg-white/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 flex items-center space-x-1">
+          <i data-lucide="shield" class="w-3 h-3 text-orange-500"></i>
+          <span>TOTP 2FA &amp; Lockout</span>
+        </span>
+        <span class="px-2.5 py-1 rounded-full bg-white/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 flex items-center space-x-1">
+          <i data-lucide="users" class="w-3 h-3 text-red-500"></i>
+          <span>RBAC Access Control</span>
+        </span>
       </div>
 
     </div>
   </div>
 
   <!-- ============================================================== -->
+  <!-- AUTHENTICATED APPLICATION SHELL                                -->
+  <!-- ============================================================== -->
+  <div id="app-shell" class="hidden flex-1 flex flex-col overflow-hidden relative z-10">
+
+    <!-- TOP APP BAR -->
+    <header class="bg-white/85 dark:bg-[#0f172a]/85 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 sticky top-0 z-30 flex-none shadow-xs transition-colors duration-300">
+      <div class="max-w-7xl mx-auto px-3 sm:px-5 py-2 flex items-center justify-between gap-2">
+
+        <!-- Brand & Workspace Tabs -->
+        <div class="flex items-center space-x-3 lg:space-x-5 min-w-0">
+          <div class="flex items-center space-x-2.5 flex-shrink-0">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-orange-500 to-red-500 text-white flex items-center justify-center shadow-md shadow-blue-500/25">
+              <i data-lucide="shield-check" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <div class="flex items-center space-x-1.5">
+                <h1 class="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
+                  Fees<span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-orange-500 to-red-500">Assistant</span>
+                </h1>
+                <span id="header-role-pill" class="text-[9px] px-1.5 py-0.5 rounded-full font-extrabold uppercase tracking-wider bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">ADMIN</span>
+              </div>
+              <p class="hidden sm:block text-[10px] text-slate-500 dark:text-slate-400 font-medium">Kiya Tuition Classes • SQLite ACID Ledger</p>
+            </div>
+          </div>
+
+          <!-- Desktop Segmented View Switcher -->
+          <nav class="hidden md:flex items-center bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-bold" aria-label="Workspace Views">
+            <button type="button" data-view="ledger" class="nav-view-btn nav-tab-active px-3 py-1.5 rounded-lg flex items-center space-x-1.5 transition cursor-pointer">
+              <i data-lucide="table-2" class="w-3.5 h-3.5"></i>
+              <span>Ledger &amp; AI</span>
+            </button>
+            <button type="button" data-view="analytics" class="nav-view-btn px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center space-x-1.5 transition cursor-pointer">
+              <i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i>
+              <span>Analytics &amp; Pending</span>
+            </button>
+            <button type="button" data-view="audit" class="nav-view-btn px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center space-x-1.5 transition cursor-pointer">
+              <i data-lucide="history" class="w-3.5 h-3.5"></i>
+              <span>Audit Log</span>
+              <span id="header-log-count" class="bg-red-500 text-white text-[9px] px-1.5 rounded-full">0</span>
+            </button>
+          </nav>
+        </div>
+
+        <!-- Action Toolbar + User Profile Dropdown -->
+        <div class="flex items-center space-x-1.5 sm:space-x-2">
+
+          <!-- Theme Toggle -->
+          <button
+            type="button"
+            id="btn-theme-toggle"
+            class="theme-toggle-trigger p-2 text-slate-600 dark:text-slate-300 hover:text-orange-500 bg-slate-100 dark:bg-slate-800/80 hover:bg-orange-50 dark:hover:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700/60 transition active:scale-95 cursor-pointer"
+            title="Toggle Light / Dark Mode"
+            aria-label="Toggle Theme"
+          >
+            <i data-lucide="sun" id="theme-icon-sun" class="theme-icon-sun w-4 h-4 hidden dark:inline text-amber-400"></i>
+            <i data-lucide="moon" id="theme-icon-moon" class="theme-icon-moon w-4 h-4 inline dark:hidden text-blue-600"></i>
+          </button>
+
+          <!-- Add Student (Admin/Staff) -->
+          <button
+            type="button"
+            id="btn-open-add-student"
+            class="role-write-only inline-flex items-center space-x-1 px-2.5 sm:px-3 py-1.5 text-xs font-bold rounded-lg btn-primary-gradient cursor-pointer active:scale-95"
+            title="Enroll new student"
+            aria-label="Add new student"
+          >
+            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+            <span class="hidden sm:inline">+ Student</span>
+          </button>
+
+          <!-- Add Month Column (Admin/Staff) -->
+          <button
+            type="button"
+            id="btn-open-add-month"
+            class="role-write-only hidden sm:inline-flex items-center space-x-1 px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-orange-50 dark:bg-orange-950/40 hover:bg-orange-100 dark:hover:bg-orange-900/40 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-800/50 transition active:scale-95 cursor-pointer"
+            title="Add new billing month column"
+            aria-label="Add month column"
+          >
+            <i data-lucide="calendar-plus" class="w-3.5 h-3.5"></i>
+            <span class="hidden lg:inline">+ Month</span>
+          </button>
+
+          <!-- Export CSV -->
+          <a
+            href="/api/export-csv"
+            id="btn-download-report"
+            class="inline-flex items-center space-x-1 px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition active:scale-95"
+            title="Download complete fee report as CSV"
+            aria-label="Export CSV report"
+            download
+          >
+            <i data-lucide="download" class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400"></i>
+            <span class="hidden xl:inline">CSV</span>
+          </a>
+
+          <!-- Reset Table (Admin Only) -->
+          <button
+            type="button"
+            id="btn-reset-table"
+            class="role-admin-only p-1.5 sm:px-2.5 sm:py-1.5 text-xs font-medium rounded-lg text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition active:scale-95 cursor-pointer"
+            title="Reset ledger database to seed CSV"
+            aria-label="Reset Table"
+          >
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+          </button>
+
+          <!-- User Account Menu -->
+          <div class="relative">
+            <button
+              type="button"
+              id="btn-user-menu"
+              class="flex items-center space-x-2 pl-1.5 pr-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800/90 hover:bg-slate-200/80 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 transition cursor-pointer"
+              aria-label="Account menu"
+            >
+              <span id="user-avatar-initials" class="w-6 h-6 rounded-lg bg-gradient-to-tr from-blue-600 to-orange-500 text-white text-[10px] font-extrabold flex items-center justify-center">AD</span>
+              <span id="user-display-name" class="hidden md:inline text-xs font-bold text-slate-800 dark:text-slate-200 max-w-[90px] truncate">Admin</span>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+            </button>
+
+            <!-- Dropdown -->
+            <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-60 rounded-2xl bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 shadow-2xl py-1.5 z-50 text-xs">
+              <div class="px-3.5 py-2.5 border-b border-slate-100 dark:border-slate-800">
+                <p id="dropdown-user-fullname" class="font-bold text-slate-900 dark:text-white truncate">Admin User</p>
+                <p id="dropdown-user-meta" class="text-[11px] text-slate-500 dark:text-slate-400 truncate">@admin • role</p>
+              </div>
+              <button type="button" id="btn-open-security-modal" class="w-full px-3.5 py-2 text-left flex items-center space-x-2.5 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/80 cursor-pointer">
+                <i data-lucide="shield" class="w-4 h-4 text-blue-500"></i>
+                <span>Account, Password &amp; 2FA</span>
+              </button>
+              <button type="button" id="btn-open-users-modal" class="role-admin-only w-full px-3.5 py-2 text-left flex items-center space-x-2.5 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/80 cursor-pointer">
+                <i data-lucide="users" class="w-4 h-4 text-orange-500"></i>
+                <span>Team &amp; Permissions</span>
+              </button>
+              <div class="my-1 border-t border-slate-100 dark:border-slate-800"></div>
+              <button type="button" id="btn-logout" class="w-full px-3.5 py-2 text-left flex items-center space-x-2.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 font-semibold cursor-pointer">
+                <i data-lucide="log-out" class="w-4 h-4"></i>
+                <span>Sign Out</span>
+              </button>
+              <button type="button" id="btn-logout-all" class="w-full px-3.5 py-2 text-left flex items-center space-x-2.5 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/80 text-[11px] cursor-pointer">
+                <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
+                <span>Sign Out All Devices</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Mobile View Tabs (visible < md) -->
+      <div class="md:hidden grid grid-cols-3 border-t border-slate-200/80 dark:border-slate-800/80 px-2 py-1 gap-1 text-[11px] font-bold bg-slate-50/70 dark:bg-slate-900/60">
+        <button type="button" data-view="ledger" class="nav-view-btn nav-tab-active py-1.5 rounded-lg flex items-center justify-center space-x-1 cursor-pointer">
+          <i data-lucide="table-2" class="w-3 h-3"></i>
+          <span>Ledger</span>
+        </button>
+        <button type="button" data-view="analytics" class="nav-view-btn py-1.5 rounded-lg text-slate-600 dark:text-slate-400 flex items-center justify-center space-x-1 cursor-pointer">
+          <i data-lucide="bar-chart-3" class="w-3 h-3"></i>
+          <span>Analytics</span>
+        </button>
+        <button type="button" data-view="audit" class="nav-view-btn py-1.5 rounded-lg text-slate-600 dark:text-slate-400 flex items-center justify-center space-x-1 cursor-pointer">
+          <i data-lucide="history" class="w-3 h-3"></i>
+          <span>Audit</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- LIVE KPI STATS DASHBOARD BAR -->
+    <section id="kpi-bar" class="bg-white/65 dark:bg-[#0b1324]/70 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 z-20 flex-none py-1.5 px-3 sm:px-5">
+      <div class="max-w-7xl mx-auto flex items-center justify-between overflow-x-auto no-scrollbar gap-2.5 text-xs">
+
+        <div class="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/60 dark:border-blue-900/40 whitespace-nowrap">
+          <i data-lucide="users" class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400"></i>
+          <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Students:</span>
+          <span id="kpi-students-count" class="font-bold font-mono text-blue-700 dark:text-blue-300">0</span>
+        </div>
+
+        <div class="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-slate-100/80 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/50 whitespace-nowrap">
+          <i data-lucide="wallet" class="w-3.5 h-3.5 text-slate-600 dark:text-slate-400"></i>
+          <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Base Target:</span>
+          <span id="kpi-base-fees" class="font-bold font-mono text-slate-800 dark:text-slate-200">₹0</span>
+        </div>
+
+        <div class="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-900/40 whitespace-nowrap">
+          <i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
+          <span id="kpi-focus-month-label" class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Collected:</span>
+          <span id="kpi-focus-collected" class="font-bold font-mono text-emerald-700 dark:text-emerald-300">₹0</span>
+          <span id="kpi-collection-rate" class="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold">0%</span>
+        </div>
+
+        <button type="button" id="kpi-pending-pill" class="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-red-50/80 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/40 border border-red-200/60 dark:border-red-900/40 whitespace-nowrap cursor-pointer transition">
+          <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-red-600 dark:text-red-400"></i>
+          <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Pending:</span>
+          <span id="kpi-pending-count" class="font-bold font-mono text-red-700 dark:text-red-300">0</span>
+        </button>
+
+        <div class="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-orange-50/80 dark:bg-orange-950/40 border border-orange-200/60 dark:border-orange-900/40 whitespace-nowrap">
+          <i data-lucide="calendar" class="w-3.5 h-3.5 text-orange-600 dark:text-orange-400"></i>
+          <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Cycles:</span>
+          <span id="kpi-months-count" class="font-bold font-mono text-orange-700 dark:text-orange-300">0</span>
+        </div>
+
+        <div class="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-slate-100/80 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 whitespace-nowrap ml-auto">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-orange-500"></i>
+          <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">NLU:</span>
+          <span id="kpi-engine-mode" class="font-bold font-mono text-slate-800 dark:text-slate-200">Checking...</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- MAIN CONTENT WORKSPACE -->
+    <main class="flex-1 max-w-7xl w-full mx-auto flex flex-col overflow-hidden bg-white/70 dark:bg-[#0a0f1d]/70 backdrop-blur-md sm:shadow-2xl sm:border-x sm:border-slate-200/80 dark:sm:border-slate-800/80 relative">
+
+      <!-- ============================================================ -->
+      <!-- VIEW 1: LEDGER & CHAT ASSISTANT                              -->
+      <!-- ============================================================ -->
+      <div id="view-ledger" class="flex-1 flex flex-col overflow-hidden">
+
+        <!-- SECTION 1: INTERACTIVE LIVE FEE LEDGER -->
+        <section class="bg-white/95 dark:bg-[#0f172a]/95 border-b border-slate-200 dark:border-slate-800 flex-none transition-colors duration-300">
+
+          <!-- Table Controls Bar -->
+          <div class="px-3 sm:px-4 py-2 bg-slate-50/90 dark:bg-slate-900/90 border-b border-slate-200/80 dark:border-slate-800/80 flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center space-x-2">
+              <div class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></div>
+              <span class="text-xs font-bold text-slate-800 dark:text-slate-200 tracking-tight">Live Ledger</span>
+              <span id="table-student-count" class="text-[10px] bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 px-2 py-0.5 rounded-full font-mono font-bold">Loading...</span>
+              <span class="hidden lg:inline text-[10px] text-slate-400 dark:text-slate-500">• Click a student name for 360° profile or any cell to quick-edit</span>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-1.5 text-xs">
+              <!-- Real-Time Search -->
+              <div class="relative w-40 sm:w-52">
+                <input
+                  type="text"
+                  id="table-search-input"
+                  placeholder="Search name, std, school..."
+                  class="w-full text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg pl-7 pr-7 py-1 text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:border-blue-500"
+                >
+                <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2 top-1.5 pointer-events-none"></i>
+                <button type="button" id="btn-clear-search" class="hidden absolute right-2 top-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer" title="Clear filter" aria-label="Clear filter">
+                  <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+
+              <!-- Status Filter -->
+              <select id="table-status-filter" class="text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 text-slate-700 dark:text-slate-200 focus:outline-none focus:border-blue-500" aria-label="Filter by payment status">
+                <option value="all">All Active</option>
+                <option value="paid">Paid Current</option>
+                <option value="pending">Pending Current</option>
+                <option value="inactive">Inactive</option>
+                <option value="everything">All Records</option>
+              </select>
+
+              <!-- School Filter -->
+              <select id="table-school-filter" class="hidden sm:block text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 text-slate-700 dark:text-slate-200 focus:outline-none focus:border-blue-500 max-w-[130px]" aria-label="Filter by school">
+                <option value="">All Schools</option>
+              </select>
+
+              <!-- Expand / Compact Table Height Toggle -->
+              <button type="button" id="btn-toggle-table-height" class="p-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-blue-600 cursor-pointer transition" title="Expand/Collapse table height" aria-label="Toggle table height">
+                <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Scrollable Table Container -->
+          <div id="table-scroll-container" class="overflow-x-auto max-h-48 sm:max-h-60 overflow-y-auto relative transition-all duration-300">
+            <table class="w-full text-left text-xs border-collapse min-w-[780px]" id="live-mock-table">
+              <thead class="sticky top-0 z-20">
+                <tr class="bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800 font-semibold" id="live-table-header"></tr>
+              </thead>
+              <tbody id="live-table-body" class="divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-700 dark:text-slate-300 font-mono"></tbody>
+              <tfoot id="live-table-footer" class="sticky bottom-0 z-10 bg-slate-100/95 dark:bg-slate-900/95 backdrop-blur-sm border-t-2 border-slate-200 dark:border-slate-700 font-mono text-[11px] font-bold"></tfoot>
+            </table>
+          </div>
+        </section>
+
+        <!-- SECTION 2: CHAT INTERFACE -->
+        <div class="flex-1 flex flex-col overflow-hidden relative">
+
+          <!-- Safety Banner -->
+          <div class="bg-gradient-to-r from-blue-50/80 via-orange-50/60 to-red-50/80 dark:from-blue-950/30 dark:via-orange-950/20 dark:to-red-950/30 border-b border-slate-200/80 dark:border-slate-800/80 px-4 py-1.5 flex items-center justify-between text-xs text-slate-700 dark:text-slate-300 flex-none">
+            <div class="flex items-center space-x-2 truncate">
+              <i data-lucide="shield-check" class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 flex-shrink-0"></i>
+              <span class="truncate font-medium text-[11px]">Safety Pipeline: 2-step confirm • Payment modes (UPI/Cash/Bank) • 1-click Undo • Duplicate &amp; Gap checks</span>
+            </div>
+            <button type="button" id="btn-clear-chat" class="text-orange-600 dark:text-orange-400 hover:text-red-600 dark:hover:text-red-400 text-[11px] font-semibold underline ml-2 flex-shrink-0 cursor-pointer">
+              Clear Chat
+            </button>
+          </div>
+
+          <!-- MESSAGES STREAM -->
+          <div id="messages-container" class="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3.5 scroll-smooth">
+            <div class="flex items-start space-x-3 message-bot">
+              <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-orange-500 text-white flex items-center justify-center flex-shrink-0 text-xs font-bold shadow-md shadow-blue-500/20">
+                <i data-lucide="bot" class="w-4 h-4"></i>
+              </div>
+              <div class="message-bot-bubble text-xs sm:text-sm">
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="font-bold text-xs text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-orange-500">Fees Assistant AI</span>
+                  <span class="text-[10px] text-slate-400">Ready</span>
+                </div>
+                <p class="leading-relaxed">
+                  👋 Welcome! Record payments conversationally in English or Hinglish, manage student profiles directly from the grid, or track pending collections in Analytics.
+                </p>
+                <div class="my-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 text-xs space-y-1 text-slate-700 dark:text-slate-300">
+                  <div class="flex items-start space-x-2">
+                    <i data-lucide="message-square-plus" class="w-3.5 h-3.5 text-blue-500 flex-shrink-0 mt-0.5"></i>
+                    <span>Try: <code>Jamie paid 1100 via UPI</code> or <code>Jamie paid 1100 for Dec 2026</code></span>
+                  </div>
+                  <div class="flex items-start space-x-2">
+                    <i data-lucide="mouse-pointer-click" class="w-3.5 h-3.5 text-orange-500 flex-shrink-0 mt-0.5"></i>
+                    <span>Click any <strong>Student Name</strong> to view 360° profile/receipts, or click any <strong>Cell</strong> to enter/edit directly.</span>
+                  </div>
+                  <div class="flex items-start space-x-2">
+                    <i data-lucide="pie-chart" class="w-3.5 h-3.5 text-red-500 flex-shrink-0 mt-0.5"></i>
+                    <span>Type <code>pending fees</code> for instant due counts, or switch to the <strong>Analytics</strong> tab.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TYPING INDICATOR -->
+          <div id="typing-indicator" class="hidden px-6 py-2 text-xs text-slate-500 dark:text-slate-400 flex items-center space-x-2 bg-transparent">
+            <div class="w-2 h-2 rounded-full bg-blue-500 animate-bounce"></div>
+            <div class="w-2 h-2 rounded-full bg-orange-500 animate-bounce [animation-delay:0.2s]"></div>
+            <div class="w-2 h-2 rounded-full bg-red-500 animate-bounce [animation-delay:0.4s]"></div>
+            <span class="text-[11px] font-medium text-slate-500 dark:text-slate-400 ml-1">Processing note...</span>
+          </div>
+
+          <!-- VIEWER READ-ONLY BANNER -->
+          <div id="viewer-readonly-banner" class="hidden px-4 py-2 bg-orange-50 dark:bg-orange-950/40 border-t border-orange-200 dark:border-orange-800/60 text-xs text-orange-800 dark:text-orange-300 flex items-center justify-center space-x-2">
+            <i data-lucide="eye" class="w-4 h-4"></i>
+            <span>You are signed in with <strong>Viewer (Read-Only)</strong> permissions. Chat entry and mutations are disabled.</span>
+          </div>
+
+          <!-- QUICK SUGGESTION CHIPS -->
+          <div class="role-write-only px-4 py-2 bg-slate-50/80 dark:bg-[#0a0f1d]/80 border-t border-slate-200/80 dark:border-slate-800/80 flex-none overflow-x-auto no-scrollbar">
+            <div class="flex items-center space-x-2 text-xs text-slate-600 dark:text-slate-400 whitespace-nowrap">
+              <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 flex items-center mr-1">
+                <i data-lucide="zap" class="w-3.5 h-3.5 mr-1 text-orange-500"></i> Quick:
+              </span>
+              <button type="button" data-quick-prompt="Alex Std 1 paid 900 via UPI" class="quick-prompt-btn px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 transition text-[11px] active:scale-95 shadow-2xs font-semibold cursor-pointer">
+                Alex Std 1 paid 900 via UPI
+              </button>
+              <button type="button" data-quick-prompt="Jamie paid 1100" class="quick-prompt-btn px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 hover:bg-orange-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 transition text-[11px] active:scale-95 shadow-2xs font-semibold cursor-pointer">
+                Jamie paid 1100
+              </button>
+              <button type="button" data-quick-prompt="Jamie paid 1100 for Dec 2026" class="quick-prompt-btn px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 hover:bg-orange-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 transition text-[11px] active:scale-95 shadow-2xs cursor-pointer">
+                Jamie Dec 2026
+              </button>
+              <button type="button" data-quick-prompt="pending fees" class="quick-prompt-btn px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-red-600 dark:text-red-400 transition text-[11px] active:scale-95 shadow-2xs font-semibold cursor-pointer">
+                Pending Fees
+              </button>
+            </div>
+          </div>
+
+          <!-- BOTTOM INPUT BAR -->
+          <footer class="role-write-only bg-white/90 dark:bg-[#0f172a]/90 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800/80 p-3 sm:p-3.5 flex-none shadow-lg">
+            <form id="chat-form" class="flex items-center space-x-2 max-w-5xl mx-auto">
+              <div class="relative flex-1">
+                <input
+                  type="text"
+                  id="chat-input"
+                  placeholder="Type fee note (e.g. Alex Std 5 paid 1300 via UPI for Nov 2026)..."
+                  class="w-full bg-slate-100 dark:bg-slate-800/90 hover:bg-slate-50 dark:hover:bg-slate-800 focus:bg-white dark:focus:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/50 rounded-xl px-4 py-2.5 text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none transition shadow-inner font-sans"
+                  autocomplete="off"
+                  required
+                >
+              </div>
+              <button
+                type="submit"
+                id="btn-send"
+                class="btn-primary-gradient px-4 py-2.5 rounded-xl font-bold flex items-center justify-center space-x-1.5 shadow-md shadow-blue-500/25 transition active:scale-95 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                <span class="hidden sm:inline text-xs">Process</span>
+                <i data-lucide="send" class="w-4 h-4"></i>
+              </button>
+            </form>
+          </footer>
+        </div>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- VIEW 2: ANALYTICS & PENDING DEFAULTERS                       -->
+      <!-- ============================================================ -->
+      <div id="view-analytics" class="hidden flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+
+        <!-- Analytics Header Controls -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-extrabold text-slate-900 dark:text-white tracking-tight">Revenue Intelligence &amp; Pending Defaulters</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Real-time collection metrics computed directly from SQLite</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <label for="analytics-month-select" class="text-xs font-bold text-slate-600 dark:text-slate-400">Focus Cycle:</label>
+            <select id="analytics-month-select" class="text-xs font-mono font-bold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-500"></select>
+            <button type="button" id="btn-refresh-analytics" class="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-blue-600 cursor-pointer" title="Refresh analytics" aria-label="Refresh analytics">
+              <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 Summary Cards -->
+        <div id="analytics-cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+
+        <!-- Charts Grid: Monthly Bars + Payment Mode Split -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <div class="lg:col-span-2 glass-card rounded-2xl p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+                <i data-lucide="bar-chart-2" class="w-4 h-4 text-blue-500"></i>
+                <span>Monthly Collection Progress</span>
+              </h3>
+              <span class="text-[11px] text-slate-400 font-mono">Collected vs Base Expected</span>
+            </div>
+            <div id="analytics-monthly-chart" class="space-y-3"></div>
+          </div>
+
+          <div class="glass-card rounded-2xl p-5 space-y-4">
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+              <i data-lucide="credit-card" class="w-4 h-4 text-orange-500"></i>
+              <span>Payment Modes</span>
+            </h3>
+            <div id="analytics-mode-chart" class="space-y-3"></div>
+          </div>
+        </div>
+
+        <!-- School Breakdown + Pending Defaulters List -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <div class="glass-card rounded-2xl p-5 space-y-3">
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+              <i data-lucide="building-2" class="w-4 h-4 text-blue-500"></i>
+              <span>By School</span>
+            </h3>
+            <div id="analytics-school-list" class="space-y-2.5 text-xs"></div>
+          </div>
+
+          <div class="lg:col-span-2 glass-card rounded-2xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+                <i data-lucide="alert-triangle" class="w-4 h-4 text-red-500"></i>
+                <span>Pending Fee Defaulters</span>
+              </h3>
+              <span id="analytics-pending-badge" class="text-[11px] px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 font-bold">0 Unpaid</span>
+            </div>
+            <div id="analytics-pending-list" class="divide-y divide-slate-100 dark:divide-slate-800 max-h-80 overflow-y-auto"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- VIEW 3: AUDIT TRAIL & SECURITY LOGS                          -->
+      <!-- ============================================================ -->
+      <div id="view-audit" class="hidden flex-1 flex flex-col overflow-hidden p-4 sm:p-6 space-y-4">
+
+        <div class="flex flex-wrap items-center justify-between gap-3 flex-none">
+          <div class="flex items-center space-x-2">
+            <button type="button" id="audit-subtab-ledger" class="px-3.5 py-1.5 rounded-xl text-xs font-bold nav-tab-active cursor-pointer">
+              Ledger Activity Trail
+            </button>
+            <button type="button" id="audit-subtab-security" class="role-admin-only px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 cursor-pointer">
+              Security &amp; Auth Logs
+            </button>
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <input type="text" id="audit-search-input" placeholder="Filter student, actor, note..." class="text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-slate-700 dark:text-slate-200 focus:outline-none focus:border-blue-500 w-44 sm:w-56">
+            <select id="audit-status-filter" class="text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-slate-700 dark:text-slate-200 focus:outline-none focus:border-blue-500" aria-label="Filter log status">
+              <option value="">All Events</option>
+              <option value="Recorded">Recorded</option>
+              <option value="Undone">Undone</option>
+              <option value="Added">Student Added</option>
+              <option value="Updated">Updated</option>
+              <option value="Deleted">Deleted</option>
+              <option value="Col Added">Col Added</option>
+              <option value="Col Deleted">Col Deleted</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+            <button type="button" id="btn-refresh-audit" class="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-blue-600 cursor-pointer" title="Refresh logs" aria-label="Refresh logs">
+              <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Ledger Audit Panel -->
+        <div id="audit-ledger-panel" class="flex-1 overflow-y-auto glass-card rounded-2xl overflow-hidden">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead class="sticky top-0 bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 font-bold">
+              <tr>
+                <th class="p-3">Time</th>
+                <th class="p-3">Actor</th>
+                <th class="p-3">Student</th>
+                <th class="p-3">Month</th>
+                <th class="p-3 text-right">Amount</th>
+                <th class="p-3">Status</th>
+                <th class="p-3">Details</th>
+              </tr>
+            </thead>
+            <tbody id="audit-ledger-body" class="divide-y divide-slate-100 dark:divide-slate-800/70"></tbody>
+          </table>
+        </div>
+
+        <!-- Security Auth Log Panel (Admin Only) -->
+        <div id="audit-security-panel" class="hidden flex-1 overflow-y-auto glass-card rounded-2xl overflow-hidden">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead class="sticky top-0 bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 font-bold">
+              <tr>
+                <th class="p-3">Timestamp (UTC)</th>
+                <th class="p-3">Username</th>
+                <th class="p-3">Event</th>
+                <th class="p-3">IP Address</th>
+                <th class="p-3">Outcome</th>
+                <th class="p-3">Details</th>
+              </tr>
+            </thead>
+            <tbody id="audit-security-body" class="divide-y divide-slate-100 dark:divide-slate-800/70"></tbody>
+          </table>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ============================================================== -->
   <!-- MODAL: ADD NEW STUDENT                                         -->
   <!-- ============================================================== -->
-  <div id="modal-add-student" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
-    <div class="bg-white dark:bg-[#0f172a] rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in-95 duration-150">
-      
+  <div id="modal-add-student" class="fixed inset-0 bg-slate-950/65 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white dark:bg-[#0f172a] rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 dark:border-slate-800">
       <div class="px-5 py-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-blue-50/70 dark:bg-blue-950/40">
         <div class="flex items-center space-x-2.5">
-          <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-xs">
+          <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center">
             <i data-lucide="user-plus" class="w-4 h-4"></i>
           </div>
           <div>
             <h2 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">Enroll New Student</h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Add student to Kiya Tuition Classes SQLite Database</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Adds student to SQLite fee ledger</p>
           </div>
         </div>
-        <button id="btn-close-add-student" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800 transition cursor-pointer" aria-label="Close add student dialog">
+        <button type="button" data-close-modal="modal-add-student" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer" aria-label="Close">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <form id="form-add-student" class="p-5 space-y-3.5 text-xs text-slate-700 dark:text-slate-300">
+      <form id="form-add-student" class="p-5 space-y-3 text-xs text-slate-700 dark:text-slate-300">
         <div>
-          <label class="block font-bold text-slate-800 dark:text-slate-200 mb-1">Student Full Name <span class="text-red-500">*</span></label>
-          <input 
-            type="text" 
-            id="input-new-student-name" 
-            placeholder="e.g. Aarav Patel" 
-            class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-            maxlength="100"
-            required
-          >
+          <label for="input-new-student-name" class="block font-bold mb-1">Student Full Name <span class="text-red-500">*</span></label>
+          <input type="text" id="input-new-student-name" placeholder="e.g. Aarav Patel" maxlength="100" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500">
         </div>
-
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block font-bold text-slate-800 dark:text-slate-200 mb-1">Class / Standard</label>
-            <input 
-              type="text" 
-              id="input-new-student-std" 
-              placeholder="e.g. 5, LKG, 10" 
-              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              maxlength="20"
-            >
+            <label for="input-new-student-std" class="block font-bold mb-1">Class / Std</label>
+            <input type="text" id="input-new-student-std" placeholder="e.g. 5, LKG" maxlength="20" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500">
           </div>
           <div>
-            <label class="block font-bold text-slate-800 dark:text-slate-200 mb-1">Monthly Fee (₹) <span class="text-red-500">*</span></label>
-            <input 
-              type="number" 
-              id="input-new-student-fee" 
-              placeholder="e.g. 1200" 
-              min="0"
-              max="10000000"
-              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-slate-100 font-mono outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              required
-            >
+            <label for="input-new-student-fee" class="block font-bold mb-1">Monthly Fee (₹) <span class="text-red-500">*</span></label>
+            <input type="number" id="input-new-student-fee" placeholder="1200" min="0" max="10000000" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm font-mono text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500">
           </div>
         </div>
-
-        <div>
-          <label class="block font-bold text-slate-800 dark:text-slate-200 mb-1">School Name</label>
-          <input 
-            type="text" 
-            id="input-new-student-school" 
-            placeholder="e.g. Welspun Vidya Mandir, OMDAV" 
-            class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-            maxlength="100"
-          >
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="input-new-student-school" class="block font-bold mb-1">School Name</label>
+            <input type="text" id="input-new-student-school" placeholder="e.g. Welspun" maxlength="100" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500">
+          </div>
+          <div>
+            <label for="input-new-student-phone" class="block font-bold mb-1">Guardian Phone</label>
+            <input type="tel" id="input-new-student-phone" placeholder="+91 98..." maxlength="25" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm font-mono text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500">
+          </div>
         </div>
+        <div>
+          <label for="input-new-student-notes" class="block font-bold mb-1">Notes</label>
+          <input type="text" id="input-new-student-notes" placeholder="Optional sibling discount or batch timing..." maxlength="300" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500">
+        </div>
+        <div id="add-student-status" class="hidden p-2.5 rounded-xl text-xs font-semibold"></div>
+        <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex justify-end space-x-2">
+          <button type="button" data-close-modal="modal-add-student" class="px-3.5 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-xl cursor-pointer">Cancel</button>
+          <button type="submit" id="btn-save-new-student" class="btn-primary-gradient px-4 py-2 rounded-xl text-xs font-bold cursor-pointer">Add Student</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-        <div id="add-student-status" class="hidden p-2.5 rounded-lg text-xs font-semibold"></div>
+  <!-- ============================================================== -->
+  <!-- MODAL: STUDENT 360° DETAIL & EDIT PROFILE                      -->
+  <!-- ============================================================== -->
+  <div id="modal-student-detail" class="fixed inset-0 bg-slate-950/65 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white dark:bg-[#0f172a] rounded-2xl shadow-2xl max-w-2xl w-full max-h-[92vh] flex flex-col overflow-hidden border border-slate-200 dark:border-slate-800">
+      <div class="px-5 py-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-blue-50/70 to-orange-50/60 dark:from-blue-950/40 dark:to-orange-950/20">
+        <div>
+          <h2 id="student-detail-title" class="text-base font-extrabold text-slate-900 dark:text-white">Student Name</h2>
+          <p id="student-detail-subtitle" class="text-xs text-slate-500 dark:text-slate-400">Profile &amp; Billing History</p>
+        </div>
+        <button type="button" data-close-modal="modal-student-detail" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer" aria-label="Close">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
 
-        <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end space-x-2">
-          <button 
-            type="button" 
-            id="btn-close-add-student-footer" 
-            class="px-3.5 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition cursor-pointer"
-          >
-            Cancel
+      <div class="px-5 pt-2 border-b border-slate-200 dark:border-slate-800 flex space-x-2 text-xs font-bold bg-slate-50/60 dark:bg-slate-900/50">
+        <button type="button" id="tab-student-history" class="px-3 py-2 border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 cursor-pointer">Payment History</button>
+        <button type="button" id="tab-student-edit" class="role-write-only px-3 py-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white cursor-pointer">Edit Profile</button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-5">
+        <div id="student-detail-history-panel" class="space-y-4"></div>
+
+        <form id="form-edit-student" class="hidden space-y-3 text-xs">
+          <input type="hidden" id="edit-student-id">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label for="edit-student-name" class="block font-bold mb-1">Full Name</label>
+              <input type="text" id="edit-student-name" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm">
+            </div>
+            <div>
+              <label for="edit-student-std" class="block font-bold mb-1">Class / Std</label>
+              <input type="text" id="edit-student-std" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm">
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label for="edit-student-school" class="block font-bold mb-1">School</label>
+              <input type="text" id="edit-student-school" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm">
+            </div>
+            <div>
+              <label for="edit-student-fee" class="block font-bold mb-1">Monthly Fee (₹)</label>
+              <input type="number" id="edit-student-fee" min="0" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm font-mono">
+            </div>
+            <div>
+              <label for="edit-student-status" class="block font-bold mb-1">Status</label>
+              <select id="edit-student-status" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm">
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label for="edit-student-phone" class="block font-bold mb-1">Guardian Phone</label>
+              <input type="tel" id="edit-student-phone" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm font-mono">
+            </div>
+            <div>
+              <label for="edit-student-notes" class="block font-bold mb-1">Notes</label>
+              <input type="text" id="edit-student-notes" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm">
+            </div>
+          </div>
+          <div class="pt-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <button type="button" id="btn-delete-student" class="role-admin-only px-3.5 py-2 rounded-xl text-xs font-bold bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 hover:bg-red-100 cursor-pointer">
+              Delete Student
+            </button>
+            <button type="submit" class="btn-primary-gradient px-5 py-2 rounded-xl text-xs font-bold ml-auto cursor-pointer">
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: DIRECT CELL PAYMENT ENTRY / EDIT                        -->
+  <!-- ============================================================== -->
+  <div id="modal-cell-payment" class="fixed inset-0 bg-slate-950/65 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white dark:bg-[#0f172a] rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden border border-slate-200 dark:border-slate-800">
+      <div class="px-5 py-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-orange-50/70 dark:bg-orange-950/30">
+        <div>
+          <h2 class="text-sm font-bold text-slate-900 dark:text-white">Record / Edit Fee Cell</h2>
+          <p id="cell-pay-subtitle" class="text-xs text-slate-500 dark:text-slate-400">Student • Month</p>
+        </div>
+        <button type="button" data-close-modal="modal-cell-payment" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 cursor-pointer" aria-label="Close">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <form id="form-cell-payment" class="p-5 space-y-3 text-xs">
+        <input type="hidden" id="cell-pay-student-id">
+        <input type="hidden" id="cell-pay-month">
+        <div>
+          <label for="cell-pay-amount" class="block font-bold mb-1">Amount Paid (₹)</label>
+          <input type="number" id="cell-pay-amount" min="1" max="10000000" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-base font-mono font-bold">
+        </div>
+        <div>
+          <label for="cell-pay-mode" class="block font-bold mb-1">Payment Mode</label>
+          <select id="cell-pay-mode" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm">
+            <option value="Cash">Cash</option>
+            <option value="UPI">UPI (GPay / PhonePe / Paytm)</option>
+            <option value="Bank Transfer">Bank Transfer (NEFT / IMPS)</option>
+            <option value="Card">Debit / Credit Card</option>
+            <option value="Cheque">Cheque</option>
+          </select>
+        </div>
+        <div>
+          <label for="cell-pay-note" class="block font-bold mb-1">Reference / Note (Optional)</label>
+          <input type="text" id="cell-pay-note" placeholder="e.g. TXN #9941 or late fee included" maxlength="200" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm">
+        </div>
+        <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+          <button type="button" id="btn-cell-pay-clear" class="hidden px-3 py-2 rounded-xl text-xs font-bold bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 cursor-pointer">
+            Clear Cell
           </button>
-          <button 
-            type="submit" 
-            id="btn-save-new-student" 
-            class="btn-primary-gradient px-4 py-2 rounded-lg text-xs font-bold shadow-sm transition active:scale-95 flex items-center space-x-1 cursor-pointer"
-          >
-            <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
-            <span>Add Student</span>
+          <button type="submit" id="btn-cell-pay-save" class="btn-primary-gradient px-4 py-2 rounded-xl text-xs font-bold ml-auto cursor-pointer">
+            Save Payment
           </button>
         </div>
       </form>
+    </div>
+  </div>
 
+  <!-- ============================================================== -->
+  <!-- MODAL: ADD MONTH COLUMN                                        -->
+  <!-- ============================================================== -->
+  <div id="modal-add-month" class="fixed inset-0 bg-slate-950/65 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white dark:bg-[#0f172a] rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden border border-slate-200 dark:border-slate-800">
+      <div class="px-5 py-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-orange-50/70 dark:bg-orange-950/30">
+        <h2 class="text-sm font-bold text-slate-900 dark:text-white">Add Billing Month Column</h2>
+        <button type="button" data-close-modal="modal-add-month" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 cursor-pointer" aria-label="Close">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <form id="form-add-month" class="p-5 space-y-3 text-xs">
+        <div>
+          <label for="input-add-month" class="block font-bold mb-1">Month &amp; Year (e.g. Jan 2027)</label>
+          <div class="flex space-x-2">
+            <input type="text" id="input-add-month" placeholder="Jan 2027" required class="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm font-mono">
+            <button type="button" id="btn-suggest-next-month" class="px-3 py-2 rounded-xl bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-bold border border-blue-200 dark:border-blue-800 cursor-pointer">Next</button>
+          </div>
+        </div>
+        <div class="flex justify-end space-x-2 pt-2">
+          <button type="button" data-close-modal="modal-add-month" class="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 font-semibold cursor-pointer">Cancel</button>
+          <button type="submit" id="btn-save-add-month" class="btn-primary-gradient px-4 py-2 rounded-xl font-bold cursor-pointer">Create Column</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: ACCOUNT PROFILE, PASSWORD & 2FA SECURITY                -->
+  <!-- ============================================================== -->
+  <div id="modal-security" class="fixed inset-0 bg-slate-950/65 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white dark:bg-[#0f172a] rounded-2xl shadow-2xl max-w-xl w-full max-h-[92vh] flex flex-col overflow-hidden border border-slate-200 dark:border-slate-800">
+      <div class="px-5 py-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-blue-50/70 dark:bg-blue-950/40">
+        <div class="flex items-center space-x-2.5">
+          <i data-lucide="shield" class="w-5 h-5 text-blue-600 dark:text-blue-400"></i>
+          <div>
+            <h2 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">Account &amp; Security Settings</h2>
+            <p id="sec-last-login" class="text-[11px] text-slate-500 dark:text-slate-400">Last login: —</p>
+          </div>
+        </div>
+        <button type="button" data-close-modal="modal-security" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 cursor-pointer" aria-label="Close">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-5 space-y-6 text-xs">
+
+        <!-- Profile Form -->
+        <form id="form-profile-update" class="space-y-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white">Profile Information</h3>
+            <span id="sec-profile-role" class="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300">ADMIN</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label for="sec-profile-fullname" class="block font-bold mb-1">Full Name</label>
+              <input type="text" id="sec-profile-fullname" required class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm">
+            </div>
+            <div>
+              <label for="sec-profile-email" class="block font-bold mb-1">Email</label>
+              <input type="email" id="sec-profile-email" required class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm">
+            </div>
+          </div>
+          <div class="flex justify-end">
+            <button type="submit" class="px-4 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold cursor-pointer">Save Profile</button>
+          </div>
+        </form>
+
+        <!-- Change Password Form -->
+        <form id="form-change-password" class="space-y-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800">
+          <h3 class="text-sm font-bold text-slate-900 dark:text-white">Change Password</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label for="sec-curr-password" class="block font-bold mb-1">Current Password</label>
+              <input type="password" id="sec-curr-password" required class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm">
+            </div>
+            <div>
+              <label for="sec-new-password" class="block font-bold mb-1">New Strong Password</label>
+              <input type="password" id="sec-new-password" required class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm">
+            </div>
+          </div>
+          <div class="flex justify-end">
+            <button type="submit" class="px-4 py-1.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold cursor-pointer">Update Password</button>
+          </div>
+        </form>
+
+        <!-- TOTP 2FA Section -->
+        <div class="space-y-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-bold text-slate-900 dark:text-white">Two-Factor Authentication (TOTP)</h3>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400">Protect logins with Google Authenticator, Authy, or 1Password</p>
+            </div>
+            <span id="sec-totp-status-badge" class="text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Disabled</span>
+          </div>
+
+          <div id="sec-2fa-setup-box" class="space-y-3">
+            <button type="button" id="btn-setup-2fa" class="btn-primary-gradient px-4 py-2 rounded-xl font-bold cursor-pointer">Enable 2FA Authenticator</button>
+            <div id="sec-2fa-enrollment" class="hidden space-y-3 p-3 rounded-xl bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-800">
+              <p class="font-semibold text-slate-700 dark:text-slate-200">1. Add this Base32 key into your Authenticator app (TOTP, 6 digits, 30s):</p>
+              <div class="flex items-center space-x-2">
+                <code id="sec-2fa-secret-display" class="flex-1 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-900 font-mono text-sm font-bold text-blue-600 dark:text-blue-400 select-all break-all"></code>
+                <button type="button" id="btn-copy-2fa-secret" class="px-3 py-2 rounded-lg bg-slate-200 dark:bg-slate-700 font-bold cursor-pointer">Copy</button>
+              </div>
+              <p class="text-[10px] text-slate-400 break-all">URI: <span id="sec-2fa-otpauth-uri" class="font-mono"></span></p>
+              <div class="flex items-center space-x-2 pt-1">
+                <input type="text" id="sec-2fa-verify-code" placeholder="Enter 6-digit code" maxlength="6" class="w-40 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 font-mono text-sm text-center">
+                <button type="button" id="btn-verify-2fa" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold cursor-pointer">Verify &amp; Activate</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="sec-2fa-active-box" class="hidden space-y-2.5">
+            <div class="flex flex-wrap items-center gap-2">
+              <input type="password" id="sec-disable-2fa-pw" placeholder="Confirm password to disable 2FA" class="flex-1 min-w-[180px] bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs">
+              <button type="button" id="btn-disable-2fa" class="px-3.5 py-1.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold cursor-pointer">Disable 2FA</button>
+            </div>
+          </div>
+
+          <!-- Recovery Codes Box -->
+          <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
+            <span class="text-[11px] text-slate-500 dark:text-slate-400">Backup Recovery Codes remaining: <strong id="sec-recovery-remaining" class="text-slate-900 dark:text-white">0</strong></span>
+            <div class="flex items-center space-x-2">
+              <input type="password" id="sec-regen-pw" placeholder="Password" class="w-32 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1 text-xs">
+              <button type="button" id="btn-regen-recovery" class="px-3 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 font-bold cursor-pointer">Regenerate Codes</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: ADMIN TEAM & USER MANAGEMENT                            -->
+  <!-- ============================================================== -->
+  <div id="modal-users" class="fixed inset-0 bg-slate-950/65 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white dark:bg-[#0f172a] rounded-2xl shadow-2xl max-w-3xl w-full max-h-[92vh] flex flex-col overflow-hidden border border-slate-200 dark:border-slate-800">
+      <div class="px-5 py-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-orange-50/70 dark:bg-orange-950/30">
+        <div>
+          <h2 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">Team Accounts &amp; Role Permissions</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Manage Admin, Staff, and Read-Only Viewer roles</p>
+        </div>
+        <button type="button" data-close-modal="modal-users" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 cursor-pointer" aria-label="Close">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-5 space-y-5 text-xs">
+        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+          <div>
+            <p class="font-bold text-slate-900 dark:text-white">Allow Public Self-Registration</p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">When disabled, only Admins can provision new team accounts.</p>
+          </div>
+          <label class="inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="toggle-self-reg" class="w-4 h-4 rounded text-blue-600">
+            <span class="ml-2 font-bold">Enabled</span>
+          </label>
+        </div>
+
+        <div class="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl">
+          <table class="w-full text-left border-collapse">
+            <thead class="bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-300 font-bold border-b border-slate-200 dark:border-slate-800">
+              <tr>
+                <th class="p-2.5">User</th>
+                <th class="p-2.5">Role</th>
+                <th class="p-2.5">Security</th>
+                <th class="p-2.5">Status</th>
+                <th class="p-2.5 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="users-table-body" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
+          </table>
+        </div>
+
+        <form id="form-admin-create-user" class="p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
+          <h3 class="font-bold text-sm text-slate-900 dark:text-white">Provision New Team Member</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <input type="text" id="admin-new-fullname" placeholder="Full Name" required class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2">
+            <input type="text" id="admin-new-username" placeholder="Username" required class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 font-mono">
+            <input type="email" id="admin-new-email" placeholder="Email" required class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2">
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <input type="password" id="admin-new-password" placeholder="Strong Password" required class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2">
+            <select id="admin-new-role" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2">
+              <option value="staff">Staff (Ledger + Chat + Students)</option>
+              <option value="viewer">Viewer (Read-Only + CSV)</option>
+              <option value="admin">Admin (Full Control)</option>
+            </select>
+            <button type="submit" class="btn-primary-gradient rounded-xl font-bold py-2 cursor-pointer">Create Member</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: BACKUP RECOVERY CODES                                   -->
+  <!-- ============================================================== -->
+  <div id="modal-recovery-codes" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-[#0f172a] rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-orange-400/50">
+      <div class="px-5 py-4 bg-orange-50 dark:bg-orange-950/40 border-b border-orange-200 dark:border-orange-800 flex items-center space-x-2.5">
+        <i data-lucide="key" class="w-5 h-5 text-orange-600 dark:text-orange-400"></i>
+        <div>
+          <h2 class="text-sm font-extrabold text-slate-900 dark:text-white">Save Your Backup Recovery Codes</h2>
+          <p class="text-[11px] text-slate-600 dark:text-slate-300">Each code can be used once to reset your password or bypass 2FA.</p>
+        </div>
+      </div>
+      <div class="p-5 space-y-4 text-xs">
+        <div id="recovery-codes-grid" class="grid grid-cols-2 gap-2 font-mono text-sm font-bold text-center"></div>
+        <div class="flex space-x-2">
+          <button type="button" id="btn-copy-recovery-codes" class="flex-1 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 font-bold cursor-pointer">Copy All</button>
+          <button type="button" id="btn-download-recovery-codes" class="flex-1 py-2 rounded-xl bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 font-bold cursor-pointer">Download .TXT</button>
+        </div>
+        <button type="button" id="btn-close-recovery-codes" class="w-full btn-primary-gradient py-2.5 rounded-xl font-bold cursor-pointer">I Have Saved These Codes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: PRINTABLE FEE RECEIPT                                   -->
+  <!-- ============================================================== -->
+  <div id="modal-receipt" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-[#0f172a] rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 dark:border-slate-800">
+      <div id="printable-receipt-area" class="p-6 space-y-4 text-xs text-slate-800 dark:text-slate-100">
+        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-3">
+          <div>
+            <h2 class="text-base font-extrabold">Kiya Tuition Classes</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Official Digital Fee Receipt</p>
+          </div>
+          <span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">PAID</span>
+        </div>
+        <div id="receipt-content" class="space-y-2"></div>
+      </div>
+      <div class="px-5 py-3 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex justify-end space-x-2">
+        <button type="button" data-close-modal="modal-receipt" class="px-4 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-xs font-bold cursor-pointer">Close</button>
+        <button type="button" id="btn-print-receipt" class="btn-primary-gradient px-4 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1 cursor-pointer">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+          <span>Print Receipt</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: STYLED CONFIRMATION DIALOG                              -->
+  <!-- ============================================================== -->
+  <div id="modal-confirm-dialog" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-[70] hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-[#0f172a] rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden border border-slate-200 dark:border-slate-800 p-5 space-y-4">
+      <div class="flex items-start space-x-3">
+        <div class="w-9 h-9 rounded-xl bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 id="confirm-dialog-title" class="text-sm font-bold text-slate-900 dark:text-white">Confirm Action</h3>
+          <p id="confirm-dialog-message" class="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed"></p>
+        </div>
+      </div>
+      <div class="flex justify-end space-x-2">
+        <button type="button" id="btn-confirm-dialog-cancel" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 cursor-pointer">Cancel</button>
+        <button type="button" id="btn-confirm-dialog-ok" class="btn-flame px-4 py-1.5 rounded-xl text-xs font-bold cursor-pointer">Confirm</button>
+      </div>
     </div>
   </div>
 

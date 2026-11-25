@@ -71,12 +71,12 @@ def reset_mock_data():
     return sqlite_db.get_table_state()
 
 
-def get_activity_log():
+def get_activity_log(limit=150, status_filter=None, search_query=None):
     """Returns activity log from SQLite."""
-    return sqlite_db.get_activity_logs_db()
+    return sqlite_db.get_activity_logs_db(limit=limit, status_filter=status_filter, search_query=search_query)
 
 
-def log_activity(student, school, amount, month, status, note=""):
+def log_activity(student, school, amount, month, status, note="", actor="System"):
     """Logs an activity entry to SQLite."""
     return sqlite_db.log_activity_db(
         student=student,
@@ -84,7 +84,8 @@ def log_activity(student, school, amount, month, status, note=""):
         amount=amount,
         month=month,
         status=status,
-        note=note
+        note=note,
+        actor=actor
     )
 
 
@@ -109,14 +110,17 @@ def pop_pending_action(action_id):
     return pending_actions.pop(action_id, None)
 
 
-def add_new_student(name, std="", school="", monthly_fee=0):
+def add_new_student(name, std="", school="", monthly_fee=0, guardian_phone="", notes="", actor="System"):
     """Adds a new student to SQLite."""
-    return sqlite_db.add_student_db(name=name, std=std, school=school, monthly_fee=monthly_fee)
+    return sqlite_db.add_student_db(
+        name=name, std=std, school=school, monthly_fee=monthly_fee,
+        guardian_phone=guardian_phone, notes=notes, actor=actor
+    )
 
 
-def delete_month_column(month_name):
+def delete_month_column(month_name, actor="System"):
     """Deletes a month column and clears associated payments in SQLite."""
-    return sqlite_db.delete_month_column_db(month_name)
+    return sqlite_db.delete_month_column_db(month_name, actor=actor)
 
 
 def generate_csv_report():
@@ -255,7 +259,7 @@ def extract_explicit_month(message):
     return None
 
 
-def prepare_payment_proposal(student_name, amount, raw_message="", choice=None):
+def prepare_payment_proposal(student_name, amount, raw_message="", choice=None, payment_mode="Cash", actor="System"):
     """
     Validates input, runs safety checks (amount, duplicate, gap),
     and creates a 2-step confirmation proposal.
@@ -321,13 +325,15 @@ def prepare_payment_proposal(student_name, amount, raw_message="", choice=None):
                 "type": "gap_choice",
                 "student": student,
                 "amount": amount,
+                "payment_mode": payment_mode,
+                "actor": actor,
                 "gap_month": gap_month,
                 "next_after_last": next_after_last
             })
             reply = (
                 f"⚠️ **Gap Warning:** **{gap_month}** is unpaid for **{student_label}**, "
                 f"but later months are already recorded.\n\n"
-                f"Where should this payment of **₹{amount:,}** be entered?"
+                f"Where should this payment of **₹{amount:,}** ({payment_mode}) be entered?"
             )
             return {
                 "status": "gap_warning",
@@ -358,12 +364,14 @@ def prepare_payment_proposal(student_name, amount, raw_message="", choice=None):
                 "type": "duplicate_confirm",
                 "student": student,
                 "amount": amount,
+                "payment_mode": payment_mode,
+                "actor": actor,
                 "target_month": target_month
             })
             reply = (
                 f"⚠️ **Duplicate Warning:** An entry of **₹{amount:,}** for **{student_label}** "
                 f"was already recorded **{seconds_ago} seconds ago**.\n\n"
-                f"Do you still want to enter another payment for **{target_month}**?"
+                f"Do you still want to enter another payment ({payment_mode}) for **{target_month}**?"
             )
             return {
                 "status": "duplicate_warning",
@@ -383,11 +391,13 @@ def prepare_payment_proposal(student_name, amount, raw_message="", choice=None):
         "type": "confirm_payment",
         "student": student,
         "amount": amount,
+        "payment_mode": payment_mode,
+        "actor": actor,
         "target_month": target_month,
         "is_large": is_large
     })
 
-    reply = f"Enter **₹{amount:,}** for **{student_label}** in **{target_month}**?{large_note}"
+    reply = f"Enter **₹{amount:,}** ({payment_mode}) for **{student_label}** in **{target_month}**?{large_note}"
 
     return {
         "status": "confirmation_required",
@@ -398,6 +408,7 @@ def prepare_payment_proposal(student_name, amount, raw_message="", choice=None):
             "school": student["school"],
             "std": student.get("std", ""),
             "amount": amount,
+            "payment_mode": payment_mode,
             "target_month": target_month
         },
         "options": [
@@ -407,7 +418,7 @@ def prepare_payment_proposal(student_name, amount, raw_message="", choice=None):
     }
 
 
-def execute_confirmed_payment(action_id):
+def execute_confirmed_payment(action_id, actor=None):
     """Executes a confirmed payment and commits it to SQLite."""
     action = pop_pending_action(action_id)
     if not action:
@@ -419,6 +430,8 @@ def execute_confirmed_payment(action_id):
     student = action["student"]
     amount = action["amount"]
     target_month = action["target_month"]
+    payment_mode = action.get("payment_mode", "Cash")
+    recorded_by = actor or action.get("actor", "System")
 
     # 1. Ensure month column exists in SQLite
     new_col_created = sqlite_db.add_month_column_if_missing(target_month)
@@ -429,7 +442,10 @@ def execute_confirmed_payment(action_id):
         student_id=student["id"],
         month_header=target_month,
         amount=amount,
-        entry_id=entry_id
+        entry_id=entry_id,
+        payment_mode=payment_mode,
+        note="",
+        recorded_by=recorded_by
     )
 
     # 3. Log Activity
@@ -439,12 +455,13 @@ def execute_confirmed_payment(action_id):
         amount=amount,
         month=target_month,
         status="Recorded",
-        note=f"Recorded in SQLite ({'New column created' if new_col_created else 'Existing column'})"
+        note=f"Recorded via Chat ({payment_mode}, {'New column created' if new_col_created else 'Existing column'})",
+        actor=recorded_by
     )
 
     student_label = get_student_label(student)
     rollover_note = " *(✨ Created new column with year rollover!)*" if new_col_created else ""
-    reply = f"Done. **{student_label}: ₹{amount:,} entered for {target_month}.**{rollover_note}"
+    reply = f"Done. **{student_label}: ₹{amount:,} ({payment_mode}) entered for {target_month}.**{rollover_note}"
 
     return {
         "success": True,
@@ -452,6 +469,7 @@ def execute_confirmed_payment(action_id):
         "entry_id": entry_id,
         "student": student,
         "amount": amount,
+        "payment_mode": payment_mode,
         "target_month": target_month,
         "new_col_created": new_col_created,
         "updated_cell": {
@@ -463,12 +481,12 @@ def execute_confirmed_payment(action_id):
     }
 
 
-def execute_undo_payment(entry_id=None):
+def execute_undo_payment(entry_id=None, actor="System"):
     """Clears a payment from SQLite."""
-    return sqlite_db.undo_payment_db(entry_id)
+    return sqlite_db.undo_payment_db(entry_id, actor=actor)
 
 
-def cancel_pending_action(action_id):
+def cancel_pending_action(action_id, actor="System"):
     """Cancels an in-flight confirmation."""
     action = pop_pending_action(action_id)
     if action:
@@ -479,7 +497,8 @@ def cancel_pending_action(action_id):
             amount=action.get("amount", 0),
             month=action.get("target_month", "—"),
             status="Cancelled",
-            note="Admin cancelled confirmation."
+            note="Admin cancelled confirmation.",
+            actor=actor
         )
     return {
         "success": True,

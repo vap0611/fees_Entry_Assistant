@@ -32,7 +32,8 @@ Thumbs.db
 .idea/
 .vscode/
 
-# Local student and fee records
+# Local student and fee records & generated secrets
 data/*.db*
+data/.flask_secret
 data/fees_database.json
 data/students.csv
