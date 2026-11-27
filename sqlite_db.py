@@ -193,20 +193,22 @@ def get_month_columns():
 def add_month_column_if_missing(month_header):
     """Adds a month column to SQLite if not already present."""
     conn = get_db()
-    with conn:
+    try:
         cur = conn.cursor()
         cur.execute("SELECT id FROM month_columns WHERE month_header = ?", (month_header,))
-        if not cur.fetchone():
+        if cur.fetchone():
+            return False
+
+        with conn:
             cur.execute("SELECT COALESCE(MAX(order_index), -1) + 1 FROM month_columns")
             next_idx = cur.fetchone()[0]
             conn.execute(
                 "INSERT INTO month_columns (month_header, order_index) VALUES (?, ?)",
                 (month_header, next_idx)
             )
-            conn.close()
-            return True
-    conn.close()
-    return False
+        return True
+    finally:
+        conn.close()
 
 
 def delete_month_column_db(month_name):
@@ -327,48 +329,54 @@ def get_table_state():
 
 
 def add_student_db(name, std="", school="", monthly_fee=0):
-    """Inserts a new student into SQLite."""
+    """Inserts a new student into SQLite with strict validation."""
     cleaned_name = (name or "").strip()
     if not cleaned_name:
         return {"success": False, "reply": "⚠️ Student name is required."}
+    if len(cleaned_name) > 100:
+        return {"success": False, "reply": "⚠️ Student name must be 100 characters or fewer."}
 
     try:
-        fee = int(float(str(monthly_fee).replace(",", "").strip()))
+        raw_fee = str(monthly_fee).replace(",", "").strip()
+        fee = int(float(raw_fee))
         if fee < 0:
             return {"success": False, "reply": "⚠️ Monthly fee cannot be negative."}
-    except (ValueError, TypeError):
+        if fee > 10_000_000:
+            return {"success": False, "reply": "⚠️ Monthly fee cannot exceed ₹10,000,000."}
+    except (ValueError, TypeError, OverflowError):
         return {"success": False, "reply": "⚠️ Please enter a valid number for monthly fee."}
 
-    cleaned_std = (std or "").strip()
-    cleaned_school = (school or "").strip()
+    cleaned_std = (std or "").strip()[:20]
+    cleaned_school = (school or "").strip()[:100]
 
     conn = get_db()
-    with conn:
-        cur = conn.cursor()
-        cur.execute(
-            "INSERT INTO students (name, std, school, monthly_fee) VALUES (?, ?, ?, ?)",
-            (cleaned_name, cleaned_std, cleaned_school, fee)
-        )
-        new_id = cur.lastrowid
-
-        # Log Activity
-        time_str = datetime.now().strftime("%I:%M:%S %p")
-        conn.execute(
-            """INSERT INTO activity_logs (id, time, student, school, amount, month, status, note)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-            (
-                str(uuid.uuid4())[:8],
-                time_str,
-                cleaned_name,
-                cleaned_school or "—",
-                fee,
-                "—",
-                "Added",
-                f"New student added in SQLite (ID: {new_id}, Std: {cleaned_std})"
+    try:
+        with conn:
+            cur = conn.cursor()
+            cur.execute(
+                "INSERT INTO students (name, std, school, monthly_fee) VALUES (?, ?, ?, ?)",
+                (cleaned_name, cleaned_std, cleaned_school, fee)
             )
-        )
+            new_id = cur.lastrowid
 
-    conn.close()
+            # Log Activity
+            time_str = datetime.now().strftime("%I:%M:%S %p")
+            conn.execute(
+                """INSERT INTO activity_logs (id, time, student, school, amount, month, status, note)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    str(uuid.uuid4())[:8],
+                    time_str,
+                    cleaned_name,
+                    cleaned_school or "—",
+                    fee,
+                    "—",
+                    "Added",
+                    f"New student added in SQLite (ID: {new_id}, Std: {cleaned_std})"
+                )
+            )
+    finally:
+        conn.close()
 
     new_student = {
         "id": new_id,
@@ -396,22 +404,24 @@ def add_student_db(name, std="", school="", monthly_fee=0):
 def record_payment_db(student_id, month_header, amount, entry_id=None):
     """Records or updates a fee payment in SQLite."""
     conn = get_db()
-    with conn:
-        conn.execute(
-            """INSERT INTO fee_payments (student_id, month_header, amount, entry_id)
-               VALUES (?, ?, ?, ?)
-               ON CONFLICT(student_id, month_header) DO UPDATE SET amount = excluded.amount, entry_id = excluded.entry_id""",
-            (student_id, month_header, amount, entry_id)
-        )
-    conn.close()
+    try:
+        with conn:
+            conn.execute(
+                """INSERT INTO fee_payments (student_id, month_header, amount, entry_id)
+                   VALUES (?, ?, ?, ?)
+                   ON CONFLICT(student_id, month_header) DO UPDATE SET amount = excluded.amount, entry_id = excluded.entry_id""",
+                (student_id, month_header, amount, entry_id)
+            )
+    finally:
+        conn.close()
 
 
 def undo_payment_db(entry_id=None):
     """
-    Clears the recorded payment associated with entry_id (or latest payment).
+    Clears the recorded payment associated with entry_id (or latest payment if entry_id is None).
     """
     conn = get_db()
-    with conn:
+    try:
         cur = conn.cursor()
         if entry_id:
             cur.execute("""
@@ -430,7 +440,8 @@ def undo_payment_db(entry_id=None):
 
         row = cur.fetchone()
         if not row:
-            conn.close()
+            if entry_id:
+                return {"success": False, "reply": f"⚠️ Entry '{entry_id}' was already undone or not found."}
             return {"success": False, "reply": "⚠️ No recent entry to undo in SQLite."}
 
         fp_id = row["id"]
@@ -440,35 +451,61 @@ def undo_payment_db(entry_id=None):
         name = row["name"]
         school = row["school"] or "—"
 
-        conn.execute("DELETE FROM fee_payments WHERE id = ?", (fp_id,))
+        with conn:
+            conn.execute("DELETE FROM fee_payments WHERE id = ?", (fp_id,))
 
-        # Log Activity
-        time_str = datetime.now().strftime("%I:%M:%S %p")
-        conn.execute(
-            """INSERT INTO activity_logs (id, time, student, school, amount, month, status, note)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-            (
-                str(uuid.uuid4())[:8],
-                time_str,
-                name,
-                school,
-                amount,
-                month,
-                "Undone",
-                "Payment cell cleared via Undo in SQLite."
+            # Log Activity
+            time_str = datetime.now().strftime("%I:%M:%S %p")
+            conn.execute(
+                """INSERT INTO activity_logs (id, time, student, school, amount, month, status, note)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    str(uuid.uuid4())[:8],
+                    time_str,
+                    name,
+                    school,
+                    amount,
+                    month,
+                    "Undone",
+                    f"Payment cell cleared via Undo in SQLite (Entry ID: {entry_id or 'latest'})."
+                )
             )
-        )
 
-    conn.close()
-    return {
-        "success": True,
-        "reply": f"Undone. **Cleared ₹{amount:,} for {name} in {month}.**",
-        "cleared_cell": {
-            "student_id": sid,
-            "month": month
-        },
-        "table": get_table_state()
-    }
+        return {
+            "success": True,
+            "reply": f"Undone. **Cleared ₹{amount:,} for {name} in {month}.**",
+            "cleared_cell": {
+                "student_id": sid,
+                "month": month
+            },
+            "table": get_table_state()
+        }
+    finally:
+        conn.close()
+
+
+def check_recent_duplicate_db(student_id, amount, window_seconds=60):
+    """
+    Checks recent payments in SQLite to prevent accidental duplicate entries within window_seconds.
+    Uses SQLite's UTC strftime epoch to guarantee consistency regardless of host timezone.
+    """
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT CAST(strftime('%s', 'now') AS INTEGER) - CAST(strftime('%s', paid_at) AS INTEGER) AS diff
+            FROM fee_payments
+            WHERE student_id = ? AND amount = ?
+            ORDER BY paid_at DESC LIMIT 1
+        """, (student_id, amount))
+        row = cur.fetchone()
+        if row and row["diff"] is not None:
+            diff = row["diff"]
+            if 0 <= diff <= window_seconds:
+                return True, int(diff)
+        return False, 0
+    finally:
+        conn.close()
 
 
 def log_activity_db(student, school, amount, month, status, note=""):
@@ -512,8 +549,21 @@ def get_activity_logs_db(limit=100):
     ]
 
 
+def sanitize_csv_cell(value):
+    """
+    Prevents CSV Formula Injection (CWE-1236).
+    If a string cell starts with =, +, -, @, tab, or carriage return,
+    prefix with single quote so spreadsheet programs treat it strictly as text.
+    """
+    if isinstance(value, str) and value:
+        stripped = value.strip()
+        if stripped and stripped[0] in ("=", "+", "-", "@", "\t", "\r"):
+            return f"'{value}"
+    return value
+
+
 def generate_csv_report_from_db():
-    """Generates complete CSV report directly from SQLite."""
+    """Generates complete CSV report directly from SQLite with formula injection defense."""
     months = get_month_columns()
     students = get_all_students_with_payments()
 
@@ -531,7 +581,12 @@ def generate_csv_report_from_db():
     for s in students:
         fee = s.get("monthly_fee", 0)
         total_base += fee
-        row = [s["name"], s.get("std", ""), s.get("school", ""), fee]
+        row = [
+            sanitize_csv_cell(s.get("name", "")),
+            sanitize_csv_cell(s.get("std", "")),
+            sanitize_csv_cell(s.get("school", "")),
+            fee
+        ]
         payments = s.get("payments", {})
         for m in months:
             val = payments.get(m, "")

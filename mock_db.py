@@ -22,8 +22,25 @@ import sqlite_db
 # Initialize SQLite database on module import
 sqlite_db.init_db(force_reseed=False)
 
-# In-flight confirmation proposals
+# In-flight confirmation proposals with TTL expiration to prevent memory leaks
 pending_actions = {}
+ACTION_TTL_SECONDS = 900  # 15 minutes
+MAX_PENDING_ACTIONS = 200
+
+
+def clean_expired_actions():
+    """Removes stale pending proposals to prevent memory exhaustion."""
+    now = datetime.now()
+    expired_ids = [
+        aid for aid, act in list(pending_actions.items())
+        if (now - act.get("created_at", now)).total_seconds() > ACTION_TTL_SECONDS
+    ]
+    for aid in expired_ids:
+        pending_actions.pop(aid, None)
+    if len(pending_actions) > MAX_PENDING_ACTIONS:
+        sorted_by_time = sorted(pending_actions.items(), key=lambda x: x[1].get("created_at", datetime.min))
+        for aid, _ in sorted_by_time[:len(pending_actions) - MAX_PENDING_ACTIONS]:
+            pending_actions.pop(aid, None)
 
 
 def normalize_string(s):
@@ -72,14 +89,23 @@ def log_activity(student, school, amount, month, status, note=""):
 
 
 def get_pending_action(action_id):
-    return pending_actions.get(action_id)
+    clean_expired_actions()
+    act = pending_actions.get(action_id)
+    if act:
+        if (datetime.now() - act.get("created_at", datetime.now())).total_seconds() > ACTION_TTL_SECONDS:
+            pending_actions.pop(action_id, None)
+            return None
+    return act
 
 
 def save_pending_action(action_id, data):
+    clean_expired_actions()
+    data["created_at"] = datetime.now()
     pending_actions[action_id] = data
 
 
 def pop_pending_action(action_id):
+    clean_expired_actions()
     return pending_actions.pop(action_id, None)
 
 
@@ -202,39 +228,48 @@ def detect_payment_gap(student, existing_columns):
 
 def check_recent_duplicate(student_id, amount):
     """Checks recent payments in SQLite to prevent accidental duplicate entries within 60s."""
-    conn = sqlite_db.get_db()
-    cur = conn.cursor()
-    cutoff_time = datetime.now() - timedelta(seconds=SHEET_CONFIG["duplicate_window_seconds"])
+    window = SHEET_CONFIG.get("duplicate_window_seconds", 60)
+    return sqlite_db.check_recent_duplicate_db(student_id, amount, window)
 
-    cur.execute("""
-        SELECT paid_at FROM fee_payments
-        WHERE student_id = ? AND amount = ?
-        ORDER BY paid_at DESC LIMIT 1
-    """, (student_id, amount))
-    row = cur.fetchone()
-    conn.close()
 
-    if row and row["paid_at"]:
+def extract_explicit_month(message):
+    """
+    Detects whether the user explicitly specified a target month in their message.
+    e.g. 'Student Dummy paid 2000 for Dec 2026' -> 'Dec 2026'
+         'Alex paid 900 in January 2027' -> 'Jan 2027'
+    """
+    if not message or not isinstance(message, str):
+        return None
+
+    # Match patterns like: (for|in|month of) (Month) (Year) or just (Month) (Year)
+    pattern = r"(?:for|in|month\s+of)?\s*(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s*[-/ ]?\s*(\d{4})"
+    match = re.search(pattern, message, re.IGNORECASE)
+    if match:
+        month_str = match.group(1)
+        year_str = match.group(2)
         try:
-            paid_dt = datetime.strptime(row["paid_at"], "%Y-%m-%d %H:%M:%S")
-            if paid_dt >= cutoff_time:
-                seconds_ago = int((datetime.now() - paid_dt).total_seconds())
-                return True, seconds_ago
-        except Exception:
-            pass
-
-    return False, 0
+            y, m, _ = parse_month_header(f"{month_str} {year_str}")
+            return format_month_header(y, m, "text")
+        except ValueError:
+            return None
+    return None
 
 
 def prepare_payment_proposal(student_name, amount, raw_message="", choice=None):
     """
     Validates input, runs safety checks (amount, duplicate, gap),
     and creates a 2-step confirmation proposal.
+    Honors explicit month requests when provided in raw_message.
     """
     if amount is None or amount <= 0:
         return {
             "status": "error",
             "reply": "⚠️ Amount must be greater than zero. Please enter a valid fee amount."
+        }
+    if amount > 10_000_000:
+        return {
+            "status": "error",
+            "reply": "⚠️ Amount cannot exceed ₹10,000,000. Please enter a valid fee amount."
         }
 
     search_result = find_matching_students(student_name, raw_message)
@@ -305,23 +340,30 @@ def prepare_payment_proposal(student_name, amount, raw_message="", choice=None):
                 ]
             }
 
+    # Target Month Calculation: Check explicit month first, otherwise consecutive
+    explicit_month = extract_explicit_month(raw_message)
+    if explicit_month:
+        target_month = explicit_month
+    else:
+        last_paid = find_last_paid_month(student.get("payments", {}), current_months)
+        calc = determine_target_month(last_paid_month=last_paid, existing_columns=current_months)
+        target_month = calc["target_month"]
+
     # Duplicate Check
     if choice != "force_duplicate":
         is_dup, seconds_ago = check_recent_duplicate(student["id"], amount)
         if is_dup:
             action_id = str(uuid.uuid4())[:8]
-            last_paid = find_last_paid_month(student.get("payments", {}), current_months)
-            calc = determine_target_month(last_paid_month=last_paid, existing_columns=current_months)
             save_pending_action(action_id, {
                 "type": "duplicate_confirm",
                 "student": student,
                 "amount": amount,
-                "target_month": calc["target_month"]
+                "target_month": target_month
             })
             reply = (
                 f"⚠️ **Duplicate Warning:** An entry of **₹{amount:,}** for **{student_label}** "
                 f"was already recorded **{seconds_ago} seconds ago**.\n\n"
-                f"Do you still want to enter another payment for **{calc['target_month']}**?"
+                f"Do you still want to enter another payment for **{target_month}**?"
             )
             return {
                 "status": "duplicate_warning",
@@ -332,11 +374,6 @@ def prepare_payment_proposal(student_name, amount, raw_message="", choice=None):
                     {"label": "Cancel", "choice": "cancel"}
                 ]
             }
-
-    # Target Month Calculation
-    last_paid = find_last_paid_month(student.get("payments", {}), current_months)
-    calc = determine_target_month(last_paid_month=last_paid, existing_columns=current_months)
-    target_month = calc["target_month"]
 
     is_large = amount > SHEET_CONFIG["large_amount_threshold"]
     large_note = f" ⚠️ *(Note: ₹{amount:,} is above standard limit of ₹{SHEET_CONFIG['large_amount_threshold']:,})*" if is_large else ""

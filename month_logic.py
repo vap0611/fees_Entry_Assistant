@@ -36,9 +36,9 @@ def parse_month_header(header_str):
         if 1 <= month <= 12:
             return year, month, "date"
 
-    # Check Text Format: MMM YYYY or Full Month YYYY (e.g. Dec 2026, December 2026)
+    # Check Text Format: MMM YYYY or Full Month YYYY (e.g. Dec 2026, December 2026, Dec-2026)
     match_text = re.match(
-        r"^(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+(\d{4})$", 
+        r"^(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)[\s\-,]+(\d{4})$", 
         cleaned, 
         re.IGNORECASE
     )
